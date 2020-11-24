@@ -99,7 +99,8 @@ export default {
                 status: this.$Const.itemStatus.pending,
                 listId: this.list.id,
                 syncStatus: this.$Const.changeStatus.new,
-                modifiedAt: new Date().getTime()
+                modifiedAt: new Date().getTime(),
+                priority: this.pendingItems.length + 1
             })
             await this.saveItem(listItem)
         },
