@@ -1,8 +1,10 @@
 import Consts from 'src/util/constants'
+import BaseObject from './BaseObject'
 
-class ListObject {
+class ListObject extends BaseObject {
     constructor (data) {
-        this._id = data.id
+        super(data)
+
         this._name = data.name
         this._priority = data.priority || 0
         this._userId = data.userId
@@ -10,14 +12,6 @@ class ListObject {
         this._syncStatus = data.syncStatus
         this._firebaseId = data.firebaseId
         this._localId = data.localId
-    }
-
-    get id () {
-        return this._id
-    }
-
-    set id (id) {
-        this._id = id
     }
 
     get name () {
@@ -89,19 +83,6 @@ class ListObject {
     flagAsDeleted () {
         this._syncStatus = Consts.changeStatus.deleted
         this._modifiedAt = new Date().getTime()
-    }
-
-    _createObject (keys) {
-        return keys.reduce((object, property) => {
-            if (ListObject.prototype.hasOwnProperty.call(this, '_' + property)) {
-                object[property] = typeof this['_' + property] === 'undefined' ? '' : this['_' + property]
-            }
-            return object
-        }, {})
-    }
-
-    clone () {
-        throw Error('Implement Clone method')
     }
 }
 

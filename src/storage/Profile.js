@@ -1,6 +1,6 @@
-import ListObject from './ListObject'
+import BaseObject from './BaseObject'
 
-class Profile extends ListObject {
+class Profile extends BaseObject {
     constructor (data) {
         super(data)
         this._userId = data.userId
