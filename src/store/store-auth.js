@@ -94,7 +94,7 @@ export default {
                 userId: state.user.uid,
                 name: state.user.name,
                 email: state.user.email,
-                syncOnStartup: false,
+                syncOnStartup: true,
                 lastSyncTime: 0
             })
 
