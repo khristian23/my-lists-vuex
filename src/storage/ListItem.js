@@ -5,6 +5,7 @@ class ListItem extends ListObject {
         super(data)
 
         this._listId = data.listId
+        this._notes = data.notes
         this._status = data.status
     }
 
@@ -16,6 +17,14 @@ class ListItem extends ListObject {
         this._listId = listId
     }
 
+    get notes () {
+        return this._notes
+    }
+
+    set notes (notes) {
+        this._notes = notes
+    }
+
     set status (status) {
         this._status = status
     }
@@ -25,7 +34,7 @@ class ListItem extends ListObject {
     }
 
     toFirebaseObject () {
-        const keys = ['id', 'name', 'priority', 'modifiedAt', 'status']
+        const keys = ['id', 'name', 'priority', 'modifiedAt', 'status', 'notes']
         const firebaseObject = this._createObject(keys)
         firebaseObject.id = this._firebaseId
         return firebaseObject
@@ -33,7 +42,7 @@ class ListItem extends ListObject {
 
     toObject () {
         const keys = ['id', 'listId', 'name', 'priority', 'modifiedAt', 'status',
-            'syncStatus', 'firebaseId', 'userId']
+            'notes', 'syncStatus', 'firebaseId', 'userId']
         return this._createObject(keys)
     }
 

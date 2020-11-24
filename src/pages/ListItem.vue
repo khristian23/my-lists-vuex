@@ -2,7 +2,8 @@
     <q-page class="flex">
         <q-form ref="myForm" class="full-width q-pa-md">
             <q-input outlined v-model="listItem.name" label="Name" :rules="[ val => val && val.length > 0 || 'Please enter a name']" />
-            <q-select outlined v-model="listItem.status" :options="statusList" label="Status" :readonly="!editMode" :emit-value="true" />
+            <q-select outlined v-model="listItem.status" :options="statusList" label="Status" :readonly="!editMode" :emit-value="true" class="q-pb-md" />
+            <q-input outlined v-model="listItem.notes" label="Notes" type="textarea" class="q-pb-md" />
         </q-form>
         <TheFooter>
             <q-btn unelevated icon="save" @click="onSave" label="Save" />
@@ -111,6 +112,8 @@ export default {
             if (!this.editMode) {
                 this.listItem.flagAsNew()
                 this.listItem.listId = this.listId
+            } else {
+                this.listItem.flagAsModified()
             }
 
             await this.saveItem(this.listItem)

@@ -141,7 +141,7 @@ export default {
         async saveList ({ commit }, list) {
             const userId = getCurrentUser(this)
             await Storage.saveList(userId, list)
-
+            debugger
             if (list.syncStatus === Consts.changeStatus.new) {
                 commit('addList', list)
             } else {
