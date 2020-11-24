@@ -126,7 +126,7 @@ export default {
     },
 
     actions: {
-        async getLists ({ commit }, userId) {
+        async loadUserLists ({ commit }, userId) {
             const lists = await Storage.getLists(userId) || []
             commit('setLists', lists)
         },

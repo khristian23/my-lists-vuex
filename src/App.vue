@@ -9,11 +9,15 @@ import { mapState, mapActions } from 'vuex'
 
 export default {
     computed: {
-        ...mapState('auth', ['user'])
+        ...mapState('auth', ['user', 'profile'])
     },
     watch: {
-        async user () {
-            await this.getLists(this.user.uid)
+        user () {
+            this.loadUserLists(this.user.uid)
+        },
+
+        'profile.lastSyncTime' () {
+            this.loadUserLists(this.user.uid)
         }
     },
     created () {
@@ -24,7 +28,7 @@ export default {
     },
     methods: {
         ...mapActions('auth', ['listenToFirebaseUserChanges', 'checkForRedirectAfterAuth']),
-        ...mapActions('lists', ['getLists'])
+        ...mapActions('lists', ['loadUserLists'])
     }
 }
 </script>
