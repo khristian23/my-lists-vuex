@@ -6,7 +6,7 @@ class Profile extends BaseObject {
         this._userId = data.userId
         this._name = data.name
         this._email = data.email
-        this._syncOnStartup = data.syncOnStartup
+        this._syncOnStartup = typeof data.syncOnStartup === 'undefined' ? true : data.syncOnStartup
         this._lastSyncTime = data.lastSyncTime
     }
 

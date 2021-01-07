@@ -8,17 +8,17 @@
 
 <script>
 export default {
-  name: 'QBUTTON',
-  data () {
-    return {
-      counter: 0,
-      input: 'rocket muffin'
+    name: 'QBUTTON',
+    data () {
+        return {
+            counter: 0,
+            input: 'rocket muffin'
+        }
+    },
+    methods: {
+        increment () {
+            this.counter++
+        }
     }
-  },
-  methods: {
-    increment () {
-      this.counter++
-    }
-  }
 }
 </script>

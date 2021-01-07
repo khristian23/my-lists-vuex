@@ -1,4 +1,4 @@
-import { firebaseStore } from 'boot/firebase'
+import { firebaseStore } from 'src/boot/firebase'
 import List from 'src/storage/List'
 import ListItem from 'src/storage/ListItem'
 

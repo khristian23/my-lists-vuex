@@ -80,7 +80,9 @@ export default {
     },
 
     async saveLists (userId, lists) {
-        lists.forEach(async list => await this.saveList(userId, list))
+        for (const list of lists) {
+            await this.saveList(userId, list)
+        }
     },
 
     async saveListItem (userId, listItem) {
@@ -96,7 +98,9 @@ export default {
     },
 
     async saveListItems (userId, listItems) {
-        listItems.forEach(async item => await this.saveListItem(userId, item))
+        for (const item of listItems) {
+            await this.saveListItem(userId, item)
+        }
     },
 
     async deleteList (userId, listId) {
