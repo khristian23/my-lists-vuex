@@ -89,7 +89,7 @@ export default {
             }
         },
 
-        async createProfile ({ state, dispatch }) {
+        async createProfile ({ state, commit, dispatch }) {
             const profile = new Profile({
                 userId: state.user.uid,
                 name: state.user.name,
@@ -98,6 +98,7 @@ export default {
                 lastSyncTime: 0
             })
 
+            commit('setProfile', profile)
             dispatch('saveProfile')
             return profile
         },
