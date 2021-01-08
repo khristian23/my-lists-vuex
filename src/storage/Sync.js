@@ -37,8 +37,28 @@ export default {
     },
 
     _distributeListObjectsByModificationDate (distribution, localObject, serverObject, lastSync) {
+        function isAnUnchangedLocalList (listObject) {
+            return !listObject.syncStatus && listObject instanceof List && listObject.id === listObject.localId
+        }
+
+        function getMostRecentListItemModification (listItems) {
+            if (!listItems) debugger
+            return listItems.reduce((mostRecentModifiedAt, item) => {
+                if (item.modifiedAt && mostRecentModifiedAt < item.modifiedAt) {
+                    mostRecentModifiedAt = item.modifiedAt
+                }
+                return mostRecentModifiedAt
+            }, 0)
+        }
+
         function itWasModifiedAfterLastSync (listObject) {
-            return listObject.modifiedAt >= lastSync
+            let modifiedAt = listObject.modifiedAt
+
+            if (isAnUnchangedLocalList(listObject)) {
+                modifiedAt = getMostRecentListItemModification(listObject.listItems)
+            }
+
+            return modifiedAt >= lastSync
         }
 
         if (itWasModifiedAfterLastSync(localObject) && itWasModifiedAfterLastSync(serverObject)) {
@@ -93,15 +113,30 @@ export default {
         }
 
         function addListsForOrphanListItems () {
+            const allLocalResultLists = []
+            const allServerResultLists = []
+            Object.keys(listResult).forEach(type => {
+                if (type.includes('Local')) {
+                    allLocalResultLists.push(...listResult[type])
+                } else {
+                    allServerResultLists.push(...listResult[type])
+                }
+            })
+
             Object.keys(result).forEach(type => {
-                const listToSearch = type.indexOf('Local') > -1 ? localObjects : serverObjects
+                const localUpdates = type.includes('Local')
+                const listToSearch = localUpdates ? localObjects : serverObjects
+                const resultToSearch = localUpdates ? allLocalResultLists : allServerResultLists
+
                 const listIds = result[type].reduce((ids, listItem) => {
                     ids[listItem.listId] = true
                     return ids
                 }, {})
+
                 Object.keys(listIds).forEach(listId => {
-                    if (!findListInArray(listResult[type], listId)) {
-                        const listForOrphans = findListInArray(listToSearch, parseInt(listId, 10))
+                    listId = parseInt(listId, 10)
+                    if (!findListInArray(resultToSearch, listId)) {
+                        const listForOrphans = findListInArray(listToSearch, listId)
                         listResult[type].push(listForOrphans)
                     }
                 })

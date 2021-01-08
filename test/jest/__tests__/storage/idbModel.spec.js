@@ -50,19 +50,5 @@ describe('IDB Model', () => {
             const deletedObject = await idb.getObjectsBy(tableName, { userId: USER_ID })
             assert.ok(!deletedObject[0])
         }
-        // Promise.all(tables.map(tableName => {
-        //     return idb.deleteObjectsBy(tableName, { userId: USER_ID })
-        // }))
-        //     .then(() => {
-        //         return Promise.all(tables.map(tableName => {
-        //             return idb.getObjectsBy(tableName, { userId: USER_ID })
-        //                 .then(deletedObject => {
-        //                     assert.ok(!deletedObject[0])
-        //                 })
-        //         }))
-        //     })
-        //     .then(() => {
-        //         done()
-        //     })
     })
 })

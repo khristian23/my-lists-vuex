@@ -999,6 +999,58 @@ describe('Synchronization', () => {
             assertTotalNumberOfListItems(result, 4)
         })
 
+        it('should add new local list items from already synchronized changed Lists', () => {
+            const LocalLists = [
+                new List({
+                    id: 1,
+                    firebaseId: 100,
+                    syncStatus: Consts.changeStatus.changed,
+                    modifiedAt: context.timeMinus2,
+                    listItems: [
+                        new ListItem({ id: 11, listId: 1, syncStatus: Consts.changeStatus.new, modifiedAt: context.timeMinus2 }),
+                        new ListItem({ id: 12, listId: 1, syncStatus: Consts.changeStatus.changed, modifiedAt: context.timeMinus3 })
+                    ]
+                })
+            ]
+
+            const ServerLists = [
+                new List({ id: 100 })
+            ]
+
+            const result = sync.computeListsToSync(LocalLists, ServerLists, context.timeMinus4)
+
+            assert.strictEqual(result.items.newLocal.length, 2)
+            assertListObjectIds(result.items.newLocal[0], 11, undefined)
+            assertListObjectIds(result.items.newLocal[1], 12, undefined)
+            assertTotalNumberOfLists(result, 1)
+            assertTotalNumberOfListItems(result, 2)
+        })
+
+        it('should add new local list items from already synchronized unchanged Lists', () => {
+            const LocalLists = [
+                new List({
+                    id: 1,
+                    firebaseId: 100,
+                    listItems: [
+                        new ListItem({ id: 11, listId: 1, syncStatus: Consts.changeStatus.new, modifiedAt: context.timeMinus2 }),
+                        new ListItem({ id: 12, listId: 1, syncStatus: Consts.changeStatus.changed, modifiedAt: context.timeMinus3 })
+                    ]
+                })
+            ]
+
+            const ServerLists = [
+                new List({ id: 100 })
+            ]
+
+            const result = sync.computeListsToSync(LocalLists, ServerLists, context.timeMinus4)
+
+            assert.strictEqual(result.items.newLocal.length, 2)
+            assertListObjectIds(result.items.newLocal[0], 11, undefined)
+            assertListObjectIds(result.items.newLocal[1], 12, undefined)
+            assertTotalNumberOfLists(result, 1)
+            assertTotalNumberOfListItems(result, 2)
+        })
+
         it('should add deleted local list items from deleted lists', () => {
             const LocalLists = [
                 new List({
