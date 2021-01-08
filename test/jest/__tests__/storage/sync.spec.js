@@ -1250,5 +1250,32 @@ describe('Synchronization', () => {
             assert.strictEqual(result.items.deletedServer[0].syncStatus, Consts.changeStatus.deleted)
             assertTotalNumberOfListItems(result, 6)
         })
+
+        it('should add server side lists in new database', () => {
+            const ServerLists = [new List({
+                id: 'LIST100',
+                modifiedAt: context.timePlus1,
+                listItems: [
+                    new ListItem({ id: 'ITEM110', listId: 'LIST100', modifiedAt: context.timeMinus4 })
+                ]
+            }), new List({
+                id: 'LIST200',
+                modifiedAt: context.timePlus2,
+                listItems: [
+                    new ListItem({ id: 'ITEM210', listId: 'LIST200', modifiedAt: context.timeMinus2 }),
+                    new ListItem({ id: 'ITEM220', listId: 'LIST200', modifiedAt: context.timeMinus1 })
+                ]
+            })]
+
+            const result = sync.computeListsToSync([], ServerLists, 0)
+
+            assertListObjectIds(result.lists.newServer[0], undefined, 'LIST100')
+            assertListObjectIds(result.lists.newServer[1], undefined, 'LIST200')
+            assertListObjectIds(result.items.newServer[0], undefined, 'ITEM110')
+            assertListObjectIds(result.items.newServer[1], undefined, 'ITEM210')
+            assertListObjectIds(result.items.newServer[2], undefined, 'ITEM220')
+            assertTotalNumberOfLists(result, 2)
+            assertTotalNumberOfListItems(result, 3)
+        })
     })
 })

@@ -42,7 +42,6 @@ export default {
         }
 
         function getMostRecentListItemModification (listItems) {
-            if (!listItems) debugger
             return listItems.reduce((mostRecentModifiedAt, item) => {
                 if (item.modifiedAt && mostRecentModifiedAt < item.modifiedAt) {
                     mostRecentModifiedAt = item.modifiedAt
@@ -134,7 +133,7 @@ export default {
                 }, {})
 
                 Object.keys(listIds).forEach(listId => {
-                    listId = parseInt(listId, 10)
+                    listId = localUpdates ? parseInt(listId, 10) : listId
                     if (!findListInArray(resultToSearch, listId)) {
                         const listForOrphans = findListInArray(listToSearch, listId)
                         listResult[type].push(listForOrphans)
