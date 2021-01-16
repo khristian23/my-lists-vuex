@@ -1,13 +1,47 @@
-import { shallowMount } from '@vue/test-utils'
-import { localVue, router } from './routerVueSetup'
+/* eslint-disable jest/expect-expect */
+import { mountFactory } from '@quasar/quasar-app-extension-testing-unit-jest'
+import { localVue } from './routerVueSetup'
+// import { shallowMount } from '@vue/test-utils'
+// import { localVue, router } from './routerVueSetup'
 import dateMocker from './dateMocker'
-import ListsView from '@/views/Lists.vue'
-import List from '@/storage/List'
-import Storage from '@/storage/storage'
-import Consts from '@/util/constants'
-import flushPromises from 'flush-promises'
+import ListsPage from 'src/pages/Lists.vue'
+import List from 'src/storage/List'
+import Storage from 'src/storage/storage'
+import Consts from 'src/util/constants'
+// import flushPromises from 'flush-promises'
 import assert from 'assert'
 import sinon from 'sinon'
+import Vuex from 'vuex'
+
+const confirmationStub = {
+    name: 'confirmation',
+    template: '<div />',
+    methods: {
+        showDialog () {
+            return Promise.resolve(true)
+        }
+    }
+}
+
+const factory = mountFactory(ListsPage, {
+    mount: {
+        localVue,
+        store: new Vuex.Store({
+            modules: {
+                lists: {
+                    namespaced: true,
+                    getters: {
+                        validLists: () => [
+                            new List({ id: 100, name: 'List1', firebaseId: 1000 }),
+                            new List({ id: 200, name: 'List2' })
+                        ]
+                    }
+                }
+            }
+        }),
+        stubs: { TheConfirmation: confirmationStub }
+    }
+})
 
 const USER_ID = 'ChristianUserId'
 
@@ -18,7 +52,7 @@ describe('Lists View', () => {
     let deleteListSpy
     let currentDate
 
-    before(() => {
+    beforeAll(() => {
         getListsStub = sinon.stub(Storage, 'getLists')
         saveListsSpy = sinon.spy(Storage, 'saveList')
         deleteListSpy = sinon.spy(Storage, 'deleteList')
@@ -27,7 +61,7 @@ describe('Lists View', () => {
         currentDate = dateMocker.getCurrentDate()
     })
 
-    after(() => {
+    afterAll(() => {
         getListsStub.restore()
         saveListsSpy.restore()
         deleteListSpy.restore()
@@ -36,41 +70,10 @@ describe('Lists View', () => {
     })
 
     beforeEach(() => {
-        const confirmationStub = {
-            name: 'confirmation',
-            template: '<div />',
-            methods: {
-                showDialog () {
-                    return Promise.resolve(true)
-                }
-            }
-        }
-        wrapper = shallowMount(ListsView, {
-            localVue,
-            router,
-            stubs: {Confirmation: confirmationStub}
-        })
-    })
-
-    async function setUserAndWait () {
-        await wrapper.setProps({ user: { uid: USER_ID } })
-        return flushPromises()
-    }
-
-    it('should render lists view', async () => {
-        await setUserAndWait()
-
-        assert.strictEqual(wrapper.vm.user.uid, USER_ID)
+        wrapper = factory()
     })
 
     it('should physically delete a list not synced', async () => {
-        getListsStub.returns([
-            new List({ id: 100, name: 'List1', firebaseId: 1000 }),
-            new List({ id: 200, name: 'List2' })
-        ])
-
-        await setUserAndWait()
-
         await wrapper.vm.onListDelete(200)
 
         assert.strictEqual(wrapper.vm.lists.length, 1)
@@ -81,14 +84,8 @@ describe('Lists View', () => {
     })
 
     it('should logically flag synced list as deleted', async () => {
-        getListsStub.returns([
-            new List({ id: 100, name: 'List1', firebaseId: 1000 }),
-            new List({ id: 200, name: 'List2' })
-        ])
         deleteListSpy.resetHistory()
         saveListsSpy.resetHistory()
-
-        await setUserAndWait()
 
         await wrapper.vm.onListDelete(100)
 
@@ -96,17 +93,17 @@ describe('Lists View', () => {
         assert.ok(!wrapper.vm.lists.some(list => list.id === 100, 'List deleted from array'))
         assert.ok(deleteListSpy.notCalled, 'Delete called')
         assert.ok(saveListsSpy.calledOnce, 'Save called')
-        
+
         const actualListDeleted = saveListsSpy.firstCall.args[1]
         const expectedListDeleted = new List({
-            id: 100, 
-            name: 'List1', 
-            firebaseId: 1000, 
+            id: 100,
+            name: 'List1',
+            firebaseId: 1000,
             syncStatus: Consts.changeStatus.deleted,
             modifiedAt: currentDate.getTime(),
             userId: USER_ID
         })
         assert.deepStrictEqual(actualListDeleted.toObject(), expectedListDeleted.toObject())
-        assert.strictEqual(wrapper.emitted().showToast[0][0], 'List deleted')      
+        assert.strictEqual(wrapper.emitted().showToast[0][0], 'List deleted')
     })
 })

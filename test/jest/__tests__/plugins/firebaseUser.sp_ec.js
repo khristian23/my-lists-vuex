@@ -1,17 +1,24 @@
-import { shallowMount } from '@vue/test-utils'
-import { localVue, router } from '../views/routerVueSetup'
+/* eslint-disable jest/expect-expect */
+import { mountFactory } from '@quasar/quasar-app-extension-testing-unit-jest'
+// import { shallowMount } from '@vue/test-utils'
+import { defaultOptions } from '../pages/routerVueSetup'
 import sinon from 'sinon'
 import assert from 'assert'
 
-import App from '@/App.vue'
+import App from 'src/App'
 import Firebase from 'firebase'
-import Const from '@/util/constants'
+import Const from 'src/util/constants'
+
+const factory = mountFactory(App, {
+    mount: defaultOptions
+})
 
 describe('Firebase User Authentication', () => {
     let wrapper
 
     beforeEach(() => {
-        wrapper = shallowMount(App, { localVue })
+        wrapper = factory()
+        // wrapper = mountQuasar(App, { localVue })
     })
 
     it('should recognize firebase user plugin', () => {
@@ -42,7 +49,7 @@ describe('Firebase User Authentication', () => {
     it('should set anonymous user when firebase does not authenticate user or upon user logout', async () => {
         wrapper.vm.$auth.user = { uid: 'Christian' }
         wrapper.vm.$auth.onAuthStateChanged(null)
-        
+
         const user = wrapper.vm.$auth.user
         assert.ok(user, 'user object set')
         assert.strictEqual(user.uid, Const.user.anonymous, 'Anonymous user set')

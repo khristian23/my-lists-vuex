@@ -25,7 +25,7 @@ export default {
         ...mapGetters('lists', ['validLists'])
     },
     methods: {
-        ...mapActions('lists', ['getLists', 'saveList', 'saveLists', 'processDeleteList']),
+        ...mapActions('lists', ['saveLists', 'processDeleteList']),
         onListPress (listId) {
             this.$router.push({ name: this.$Const.routes.listItems, params: { id: listId } })
         },
