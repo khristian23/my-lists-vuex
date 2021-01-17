@@ -1,4 +1,3 @@
-import Consts from 'src/util/constants'
 import BaseObject from './BaseObject'
 
 class ListObject extends BaseObject {
@@ -7,11 +6,9 @@ class ListObject extends BaseObject {
 
         this._name = data.name
         this._priority = data.priority || 0
-        this._userId = data.userId
+        this._owner = data.owner
         this._modifiedAt = data.modifiedAt
-        this._syncStatus = data.syncStatus
-        this._firebaseId = data.firebaseId
-        this._localId = data.localId
+        this._changedBy = data.changedBy
     }
 
     get name () {
@@ -30,30 +27,6 @@ class ListObject extends BaseObject {
         this._priority = priority
     }
 
-    get firebaseId () {
-        return this._firebaseId
-    }
-
-    set firebaseId (firebaseId) {
-        this._firebaseId = firebaseId
-    }
-
-    set localId (localId) {
-        this._localId = localId
-    }
-
-    get localId () {
-        return this._localId
-    }
-
-    set syncStatus (syncStatus) {
-        this._syncStatus = syncStatus
-    }
-
-    get syncStatus () {
-        return this._syncStatus
-    }
-
     set modifiedAt (modifiedAt) {
         this._modifiedAt = modifiedAt
     }
@@ -62,27 +35,28 @@ class ListObject extends BaseObject {
         return this._modifiedAt
     }
 
-    set userId (userId) {
-        this._userId = userId
+    set changedBy (changedBy) {
+        this._changedBy = changedBy
     }
 
-    get userId () {
-        return this._userId
+    get changedBy () {
+        return this._changedBy
     }
 
-    flagAsNew () {
-        this._syncStatus = Consts.changeStatus.new
-        this._modifiedAt = new Date().getTime()
+    set onwer (owner) {
+        this._owner = owner
     }
 
-    flagAsModified () {
-        this._syncStatus = Consts.changeStatus.changed
-        this._modifiedAt = new Date().getTime()
+    get owner () {
+        return this._owner
     }
 
-    flagAsDeleted () {
-        this._syncStatus = Consts.changeStatus.deleted
-        this._modifiedAt = new Date().getTime()
+    set isShared (isShared) {
+        this._isShared = isShared
+    }
+
+    get isShared () {
+        return this._isShared
     }
 }
 

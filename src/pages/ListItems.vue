@@ -49,7 +49,7 @@ export default {
         ...mapGetters('lists', ['pendingItems', 'doneItems']),
 
         list () {
-            const listId = parseInt(this.$route.params.id, 10)
+            const listId = this.$route.params.id
             return this.$store.getters['lists/getListById'](listId)
         },
 
@@ -66,7 +66,7 @@ export default {
     methods: {
         ...mapMutations('app', ['setTitle']),
 
-        ...mapActions('lists', ['getListItems', 'setItemToDone', 'setItemToPending', 'updateItemsOrder', 'processDeleteItem', 'saveItem']),
+        ...mapActions('lists', ['getListItems', 'setItemToDone', 'setItemToPending', 'updateItemsOrder', 'deleteItem', 'saveItem']),
 
         async _intializeListItems () {
             this.$q.loading.show()
@@ -98,11 +98,13 @@ export default {
                 name: this.newItem,
                 status: this.$Const.itemStatus.pending,
                 listId: this.list.id,
-                syncStatus: this.$Const.changeStatus.new,
-                modifiedAt: new Date().getTime(),
                 priority: this.pendingItems.length + 1
             })
-            await this.saveItem(listItem)
+            try {
+                await this.saveItem(listItem)
+            } catch (e) {
+                this.$emit('showError', e.message)
+            }
         },
 
         onCreate () {
@@ -114,11 +116,19 @@ export default {
         },
 
         async onItemDelete (itemId) {
-            await this.processDeleteItem(itemId)
+            try {
+                await this.deleteItem({ listId: this.list.id, itemId })
+            } catch (e) {
+                this.$emit('showError', e.message)
+            }
         },
 
         async onOrderUpdated (listItems) {
-            await this.updateItemsOrder({ listId: this.list.id, listItems })
+            try {
+                await this.updateItemsOrder({ listId: this.list.id, listItems })
+            } catch (e) {
+                this.$emit('showError', e.message)
+            }
         }
     }
 }

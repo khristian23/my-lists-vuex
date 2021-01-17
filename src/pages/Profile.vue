@@ -53,11 +53,11 @@ export default {
         },
 
         onSynchronize () {
-            try {
-                this.synchronize()
-            } catch (e) {
-                this.$emit('showErrow', e.message)
-            }
+            // try {
+            //     this.synchronize()
+            // } catch (e) {
+            //     this.$emit('showErrow', e.message)
+            // }
         }
     },
     mounted () {

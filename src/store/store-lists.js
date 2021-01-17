@@ -1,4 +1,4 @@
-import Storage from 'src/storage/storage.js'
+import Storage from 'src/storage/Firestore/storage-fire'
 import Consts from 'src/util/constants'
 
 function getCurrentUser (store) {
@@ -26,14 +26,12 @@ function getListIndexById (lists, listId) {
 
 async function updateList ({ getters, commit, dispatch }, listId) {
     const list = getters.getListById(listId)
-    commit('flagAsModified', list)
     await dispatch('saveList', list)
 }
 
 async function setItemStatus ({ getters, commit, dispatch }, itemId, status) {
     const item = getters.getListItemById(itemId)
     commit('setItemState', { item, status })
-    commit('flagAsModified', item)
 
     await updateList({ getters, commit, dispatch }, item.listId)
 }
@@ -99,13 +97,9 @@ export default {
             state.lists.splice(state.lists.length, 0, list)
         },
 
-        updateListItem (state, item) {
-            const index = getListIndexById(state.items, item.id)
+        updateListItemInStore (state, item) {
+            const index = getListIndexById(state.items, item.id) || state.items.length
             state.items.splice(index, 1, item)
-        },
-
-        addListItem (state, item) {
-            state.items.splice(state.items.length, 0, item)
         },
 
         setItemState (state, { item, status }) {
@@ -114,14 +108,6 @@ export default {
 
         setItemPriority (state, { item, priority }) {
             item.priority = priority
-        },
-
-        flagAsDeleted (state, listObject) {
-            listObject.flagAsDeleted()
-        },
-
-        flagAsModified (state, listObject) {
-            listObject.flagAsModified()
         }
     },
 
@@ -163,16 +149,6 @@ export default {
             commit('removeListByIndex', listIndex)
         },
 
-        async processDeleteList ({ commit, getters, dispatch }, listId) {
-            const list = getters.getListById(listId)
-            if (list.firebaseId) {
-                commit('flagAsDeleted', list)
-                await dispatch('saveList', list)
-            } else {
-                await dispatch('deleteList', list.id)
-            }
-        },
-
         async setItemToDone (context, itemId) {
             await setItemStatus(context, itemId, Consts.itemStatus.done)
         },
@@ -185,41 +161,36 @@ export default {
             const userId = getCurrentUser(this)
             await Storage.saveListItem(userId, item)
 
-            if (item.syncStatus === Consts.changeStatus.new) {
-                commit('addListItem', item)
-            } else {
-                commit('updateListItem', item)
-            }
+            commit('updateListItemInStore', item)
         },
 
-        async deleteItem ({ state, commit }, itemId) {
+        async deleteItem ({ getters, state, commit, dispatch }, { listId, itemId }) {
             const userId = getCurrentUser(this)
-            await Storage.deleteListItem(userId, itemId)
+            await Storage.deleteListItem(userId, listId, itemId)
 
             const itemIndex = getListIndexById(state.items, itemId)
             commit('removeItemByIndex', itemIndex)
         },
 
-        async updateItemsOrder ({ getters, commit, dispatch }, { listId, listItems }) {
+        async updateItemsOrder ({ getters, commit }, { listId, listItems }) {
+            const userId = getCurrentUser(this)
+
+            await Storage.setItemsPriority(userId, listId, listItems)
+
             listItems.forEach(changedItem => {
                 const item = getters.getListItemById(changedItem.id)
-                commit('flagAsModified', item)
                 commit('setItemPriority', { item, priority: changedItem.priority })
             })
-
-            updateList({ getters, commit, dispatch }, listId)
         },
 
-        async processDeleteItem ({ getters, commit, dispatch }, itemId) {
-            const item = getters.getListItemById(itemId)
-            if (item.firebaseId) {
-                commit('flagAsDeleted', item)
-                await dispatch('saveItem', item)
-            } else {
-                await dispatch('deleteItem', item.id)
-            }
+        async updateListsOrder ({ commit }, lists) {
+            const userId = getCurrentUser(this)
 
-            updateList({ getters, commit, dispatch }, item.listId)
+            await Storage.setListsPriority(userId, lists)
+
+            lists.forEach(changedList => {
+                commit('updateList', changedList)
+            })
         }
     }
 }

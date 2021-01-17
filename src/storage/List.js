@@ -8,6 +8,7 @@ class List extends ListObject {
         this._type = data.type
         this._subtype = data.subtype
         this._listItems = data.listItems || []
+        this._sharedWith = data.sharedWith
     }
 
     get description () {
@@ -42,6 +43,14 @@ class List extends ListObject {
         return this._listItems
     }
 
+    set sharedWith (sharedWith) {
+        this._sharedWith = sharedWith
+    }
+
+    get sharedWith () {
+        return this._sharedWith
+    }
+
     addListItems (listItems) {
         listItems.forEach(item => this.addListItem(item))
     }
@@ -52,9 +61,8 @@ class List extends ListObject {
     }
 
     toFirebaseObject () {
-        const keys = ['id', 'name', 'description', 'priority', 'type', 'subtype', 'modifiedAt']
+        const keys = ['name', 'description', 'type', 'subtype', 'modifiedAt', 'changedBy']
         const firebaseObject = this._createObject(keys)
-        firebaseObject.id = this._firebaseId
         return firebaseObject
     }
 

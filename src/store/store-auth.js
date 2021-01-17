@@ -1,7 +1,6 @@
 import Firebase from 'firebase'
 import { firebaseAuth } from 'boot/firebase'
 import Constants from 'src/util/constants'
-import Sync from 'src/storage/Sync'
 import Storage from 'src/storage/IndexedDB/storage-idb'
 import Profile from 'src/storage/Profile'
 
@@ -113,25 +112,6 @@ export default {
                 profile = await dispatch('createProfile')
             }
             commit('setProfile', profile)
-
-            if (profile.syncOnStartup) {
-                dispatch('synchronize')
-            }
-        },
-
-        setSyncOnStartup ({ state, commit }, syncOnStartup) {
-            commit('setSyncOnStartup', syncOnStartup)
-        },
-
-        async synchronize ({ state, commit }) {
-            commit('app/isSynchronizing', true, { root: true })
-            if (!state.user.isAnonymous) {
-                const lastSyncTime = await Sync.synchronize(state.user)
-                if (lastSyncTime) {
-                    commit('setLastSyncTime', lastSyncTime)
-                }
-            }
-            commit('app/isSynchronizing', false, { root: true })
         }
     }
 }

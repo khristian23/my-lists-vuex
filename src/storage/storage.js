@@ -1,7 +1,7 @@
-import indexedDB from './IndexedDB/storage-idb'
 import localStorage from './localStorage/storage-local'
+import firestore from './Firestore/storage-fire'
 
-let storage = indexedDB
+let storage = firestore
 
 if (window.Cypress || window.it) {
     storage = localStorage

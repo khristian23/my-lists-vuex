@@ -74,7 +74,7 @@ export default {
         },
 
         editList () {
-            const listId = parseInt(this.$route.params.id, 10)
+            const listId = this.$route.params.id
             return this.$store.getters['lists/getListById'](listId)
         }
     },

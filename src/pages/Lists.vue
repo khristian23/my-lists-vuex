@@ -25,7 +25,7 @@ export default {
         ...mapGetters('lists', ['validLists'])
     },
     methods: {
-        ...mapActions('lists', ['saveLists', 'processDeleteList']),
+        ...mapActions('lists', ['saveLists', 'deleteList', 'updateListsOrder']),
         onListPress (listId) {
             this.$router.push({ name: this.$Const.routes.listItems, params: { id: listId } })
         },
@@ -38,7 +38,7 @@ export default {
             const confirmationAnswer = await this.$refs.confirmation.showDialog(message)
 
             if (confirmationAnswer) {
-                await this.processDeleteList(listId)
+                await this.deleteList(listId)
                 this.$emit('showToast', 'List deleted')
             }
         },
@@ -50,9 +50,9 @@ export default {
         },
         async onOrderUpdated (lists) {
             try {
-                await this.saveLists(lists)
+                await this.updateListsOrder(lists)
             } catch (e) {
-                this.$emit('showError', 'Error trying to save list priorities')
+                this.$emit('showError', e.message)
             }
         }
     }

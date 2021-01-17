@@ -12,6 +12,11 @@ export default {
         }
     },
 
+    setModificationValues (userId, object) {
+        object.modifiedAt = Date.now()
+        object.changedBy = userId
+    },
+
     async getLists (userId) {
         const results = []
         const ownerArgs = ['owner', '==', userId]
@@ -21,6 +26,7 @@ export default {
             for (const firebaseList of listDocs) {
                 const list = new List(firebaseList.data())
                 list.id = firebaseList.id
+                list.isShared = list.owner !== userId
 
                 const items = await listsCollection.doc(list.id).collection('items').where(...options).get()
                 for (const item of items.docs) {
@@ -28,6 +34,7 @@ export default {
                     listItem.id = item.id
                     listItem.listId = list.id
                     listItem.isShared = item.owner !== userId
+                    listItem.priority = item.userPriorities ? item.userPriorities[userId] : 0
                     list.addListItem(listItem)
                 }
                 results.push(list)
@@ -45,47 +52,57 @@ export default {
     },
 
     async saveList (userId, list) {
+        this.setModificationValues(userId, list)
+
         const firebaseList = this.getFirebaseObject(list)
 
         try {
             const listsCollection = firebaseStore.collection('lists')
 
-            if (list.firebaseId) {
-                const listRef = listsCollection.doc(list.firebaseId)
+            if (list.id) {
+                const listRef = listsCollection.doc(list.id)
                 await listRef.update(firebaseList)
             } else {
                 firebaseList.owner = userId
                 firebaseList.sharedWith = []
+                firebaseList.userPriorities = {}
+                firebaseList.userPriorities[userId] = list.priority
+
                 const docRef = await listsCollection.add(firebaseList)
-                list.firebaseId = docRef.id
+                list.id = docRef.id
             }
         } catch (e) {
             throw new Error(e.message)
         }
-
-        return list.firebaseId
     },
 
-    async saveListItem (userId, firebaseListId, listItem) {
+    async saveListItem (userId, listItem) {
+        if (!listItem.listId) {
+            throw new Error('List item must have be part of a list')
+        }
+
+        this.setModificationValues(userId, listItem)
+
         const firebaseListItem = this.getFirebaseObject(listItem)
 
         try {
-            const listRef = firebaseStore.collection('lists').doc(firebaseListId)
+            const listRef = firebaseStore.collection('lists').doc(listItem.listId)
             const itemsCollection = listRef.collection('items')
 
-            if (listItem.firebaseId) {
-                const itemRef = itemsCollection.doc(listItem.firebaseId)
+            if (listItem.id) {
+                const itemRef = itemsCollection.doc(listItem.id)
                 await itemRef.update(firebaseListItem)
             } else {
                 firebaseListItem.owner = userId
+                firebaseListItem.userPriorities = {}
+                firebaseListItem.userPriorities[userId] = listItem.priority
+
                 const docRef = await itemsCollection.add(firebaseListItem)
-                listItem.firebaseId = docRef.id
+                listItem.id = docRef.id
             }
         } catch (e) {
             throw new Error(e.message)
         }
-
-        return listItem.firebaseId
     },
 
     async shareListWithUser (firebaseListId, sharedWithUserId) {
@@ -99,21 +116,60 @@ export default {
         }
     },
 
-    async deleteList (userId, firebaseId) {
-        const listRef = firebaseStore.collection('lists').doc(firebaseId)
-        const items = await listRef.collection('items').get()
+    async deleteList (userId, listId) {
+        try {
+            const listRef = firebaseStore.collection('lists').doc(listId)
+            const items = await listRef.collection('items').where('owner', '==', userId).get()
 
-        for (const item of items.docs) {
-            await item.ref.delete()
+            for (const item of items.docs) {
+                await item.ref.delete()
+            }
+
+            return listRef.delete()
+        } catch (e) {
+            throw new Error(e.message)
         }
+    },
 
-        return listRef.delete()
+    getItemFirebaseReference (listId, listItemId) {
+        const listRef = firebaseStore.collection('lists').doc(listId)
+        return listRef.collection('items').doc(listItemId)
     },
 
     async deleteListItem (userId, firebaseListId, firebaseItemId) {
-        const listRef = firebaseStore.collection('lists').doc(firebaseListId)
-        const itemRef = listRef.collection('items').doc(firebaseItemId)
-        return itemRef.delete()
+        try {
+            const itemRef = this.getItemFirebaseReference(firebaseListId, firebaseItemId)
+            return itemRef.delete()
+        } catch (e) {
+            throw new Error(e.message)
+        }
+    },
+
+    async setItemsPriority (userId, listId, listItems) {
+        return listItems.map(item => {
+            const itemRef = this.getItemFirebaseReference(listId, item.id)
+
+            return this.updateObjectPriotity(userId, itemRef, item)
+        })
+    },
+
+    async setListsPriority (userId, lists) {
+        return lists.map(list => {
+            const listRef = firebaseStore.collection('lists').doc(list.id)
+
+            return this.updateObjectPriotity(userId, listRef, list)
+        })
+    },
+
+    async updateObjectPriotity (userId, objectRef, object) {
+        this.setModificationValues(userId, object)
+
+        const firebaseObjectUpdate = {}
+        firebaseObjectUpdate.changedBy = object.changedBy
+        firebaseObjectUpdate.modifiedAt = object.modifiedAt
+        firebaseObjectUpdate[`userPriorities.${userId}`] = object.priority
+
+        return objectRef.update(firebaseObjectUpdate)
     }
 
 }

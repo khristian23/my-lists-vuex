@@ -58,7 +58,7 @@ export default {
         },
 
         listId () {
-            return parseInt(this.$route.params.list, 10)
+            return this.$route.params.list
         },
 
         editMode () {
@@ -66,7 +66,7 @@ export default {
         },
 
         editList () {
-            const listId = parseInt(this.$route.params.list, 10)
+            const listId = this.$route.params.list
             return this.$store.getters['lists/getListById'](listId)
         }
     },
@@ -91,7 +91,7 @@ export default {
             }
         },
         async _loadExistentItem () {
-            const listItemId = parseInt(this.$route.params.id, 10)
+            const listItemId = this.$route.params.id
             const editListItem = this.editList.listItems.find(item => item.id === listItemId)
 
             if (editListItem) {
@@ -110,10 +110,7 @@ export default {
             }
 
             if (!this.editMode) {
-                this.listItem.flagAsNew()
                 this.listItem.listId = this.listId
-            } else {
-                this.listItem.flagAsModified()
             }
 
             await this.saveItem(this.listItem)

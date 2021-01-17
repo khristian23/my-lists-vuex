@@ -9,14 +9,10 @@ import { mapState, mapActions } from 'vuex'
 
 export default {
     computed: {
-        ...mapState('auth', ['user', 'profile'])
+        ...mapState('auth', ['user'])
     },
     watch: {
         user () {
-            this.loadUserLists(this.user.uid)
-        },
-
-        'profile.lastSyncTime' () {
             this.loadUserLists(this.user.uid)
         }
     },
