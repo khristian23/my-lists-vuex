@@ -7,7 +7,7 @@
         <q-drawer v-model="leftDrawerOpen" side="left" show-if-above bordered content-class="bg-grey-1">
             <q-list>
                 <q-item-label header class="text-grey-8">
-                    <q-chip>
+                    <q-chip clickable @click="onUserNameClicked">
                         <q-avatar color="blue" text-color="white">{{ initials }}</q-avatar>
                         {{ user.name }}
                     </q-chip>
@@ -71,11 +71,16 @@ export default {
                 type: 'negative'
             })
         },
+
         showToast (message) {
             this.$q.notify({
                 message: message,
                 color: 'gray'
             })
+        },
+
+        onUserNameClicked () {
+            this.$router.push({ name: 'profile' })
         }
     }
 }
