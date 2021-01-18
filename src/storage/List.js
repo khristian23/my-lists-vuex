@@ -8,7 +8,7 @@ class List extends ListObject {
         this._type = data.type
         this._subtype = data.subtype
         this._listItems = data.listItems || []
-        this._sharedWith = data.sharedWith
+        this._sharedWith = data.sharedWith || []
     }
 
     get description () {
@@ -61,7 +61,7 @@ class List extends ListObject {
     }
 
     toFirebaseObject () {
-        const keys = ['name', 'description', 'type', 'subtype', 'modifiedAt', 'changedBy']
+        const keys = ['name', 'description', 'type', 'subtype', 'sharedWith', 'modifiedAt', 'changedBy']
         const firebaseObject = this._createObject(keys)
         return firebaseObject
     }

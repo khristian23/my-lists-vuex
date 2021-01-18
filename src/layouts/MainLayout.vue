@@ -57,11 +57,7 @@ export default {
     computed: {
         ...mapState('auth', ['user']),
         initials () {
-            const name = this.user.name || this.user.email
-            if (name) {
-                return name.substr(0, 1).toUpperCase()
-            }
-            return ''
+            return this.$Utils.getUserInitials(this.user)
         }
     },
     methods: {

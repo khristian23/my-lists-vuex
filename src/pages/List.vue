@@ -1,6 +1,7 @@
 <template>
     <q-page class="flex">
         <q-form class="full-width q-pa-md" ref="myForm">
+            <div class="text-h6 q-mb-sm">List Details</div>
             <q-input outlined v-model="list.name" label="Name" class="q-mb-sm" :rules="[ val => val && val.length > 0 || 'Please enter a name']" />
             <q-input outlined v-model="list.description" label="Description" class="q-mb-md" />
             <q-select outlined v-model="selectedType" :options="$Const.lists.types" class="q-mb-md" @input="onTypeSelection" label="Type">
@@ -25,6 +26,28 @@
                     <q-icon :name="selectedType.icon" />
                 </template>
             </q-select>
+
+            <div class="text-h6 q-mt-md">Shared With</div>
+            <div class="q-pa-md q-mx-auto" style="max-width: 400px">
+                <q-list bordered>
+                    <q-item v-for="user in shareableUsers" :key="user.id" class="q-mb-sm">
+                        <q-item-section avatar>
+                            <q-avatar color="primary" text-color="white">
+                                <img :src="user.photoURL">
+                            </q-avatar>
+                        </q-item-section>
+
+                        <q-item-section>
+                            <q-item-label>{{ user.name }}</q-item-label>
+                            <q-item-label caption lines="1">{{ user.email }}</q-item-label>
+                        </q-item-section>
+
+                        <q-item-section side>
+                            <q-toggle color="green" v-model="list.sharedWith" :val="user.id" />
+                        </q-item-section>
+                    </q-item>
+                </q-list>
+            </div>
         </q-form>
         <TheFooter>
             <q-btn unelevated icon="save" @click="onSave" label="Save" />
@@ -34,7 +57,7 @@
 
 <script>
 import List from 'src/storage/List'
-import { mapMutations, mapActions } from 'vuex'
+import { mapState, mapMutations, mapActions } from 'vuex'
 
 export default {
     name: 'List',
@@ -68,7 +91,12 @@ export default {
             }
         }
     },
+    mounted () {
+        this.loadUsersList()
+    },
     computed: {
+        ...mapState('auth', ['user', 'users']),
+
         editMode () {
             return this.$route.params.id !== 'new'
         },
@@ -76,11 +104,21 @@ export default {
         editList () {
             const listId = this.$route.params.id
             return this.$store.getters['lists/getListById'](listId)
+        },
+
+        shareableUsers () {
+            return [].concat(this.users)
+                .filter(user => user.id !== this.user.uid)
+                .map(user => {
+                    user.isSharedWith = this.list.sharedWith.includes(user.id)
+                    return user
+                })
         }
     },
     methods: {
         ...mapMutations('app', ['setTitle']),
         ...mapActions('lists', ['saveList']),
+        ...mapActions('auth', ['loadUsersList']),
 
         async _initializeList () {
             this.$q.loading.show()
@@ -110,6 +148,10 @@ export default {
             } else {
                 this.selectedSubType = null
             }
+        },
+
+        onShareWith (e) {
+            debugger
         },
 
         async onSave () {

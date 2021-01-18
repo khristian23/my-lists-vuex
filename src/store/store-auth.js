@@ -1,8 +1,7 @@
 import Firebase from 'firebase'
 import { firebaseAuth } from 'boot/firebase'
 import Constants from 'src/util/constants'
-import Storage from 'src/storage/IndexedDB/storage-idb'
-import Profile from 'src/storage/Profile'
+import Storage from 'src/storage/Firestore/storage-fire'
 
 function createAnonymousUser () {
     return {
@@ -16,35 +15,34 @@ export default {
     namespaced: true,
     state: {
         user: {},
-        profile: {}
+        users: []
     },
     mutations: {
         setUser (state, user) {
             state.user = user
         },
 
-        setProfile (state, profile) {
-            state.profile = profile
-        },
-
-        setLastSyncTime (state, lastSyncTime) {
-            state.profile.lastSyncTime = lastSyncTime
-        },
-
-        setSyncOnStartup (state, syncOnStartup) {
-            state.profile.syncOnStartup = syncOnStartup
+        setUsers (state, users) {
+            state.users = users
         }
     },
     actions: {
-        async registerUser (state, payload) {
+        async loadUsersList ({ commit }) {
+            const users = await Storage.getUsersList()
+            commit('setUsers', users)
+        },
+
+        async registerUser ({ dispatch }, payload) {
             await firebaseAuth.createUserWithEmailAndPassword(payload.email, payload.password)
-            firebaseAuth.currentUser.updateProfile({
+            await firebaseAuth.currentUser.updateProfile({
                 displayName: payload.name
             })
         },
+
         async loginUser (state, { email, password }) {
             return firebaseAuth.signInWithEmailAndPassword(email, password)
         },
+
         listenToFirebaseUserChanges ({ commit, dispatch }) {
             try {
                 firebaseAuth.onAuthStateChanged(user => {
@@ -55,7 +53,8 @@ export default {
                             name: user.displayName,
                             email: user.email,
                             uid: user.uid,
-                            isAnonymous: false
+                            photoURL: user.photoURL,
+                            isAnonymous: user.isAnonymous
                         })
 
                         dispatch('onUserLoggedIn')
@@ -88,30 +87,8 @@ export default {
             }
         },
 
-        async createProfile ({ state, commit, dispatch }) {
-            const profile = new Profile({
-                userId: state.user.uid,
-                name: state.user.name,
-                email: state.user.email,
-                syncOnStartup: true,
-                lastSyncTime: 0
-            })
-
-            commit('setProfile', profile)
-            dispatch('saveProfile')
-            return profile
-        },
-
-        async saveProfile ({ state }) {
-            await Storage.saveProfile(state.user.uid, state.profile)
-        },
-
         async onUserLoggedIn ({ state, commit, dispatch }) {
-            let profile = await Storage.getProfile(state.user.uid)
-            if (!profile) {
-                profile = await dispatch('createProfile')
-            }
-            commit('setProfile', profile)
+            return Storage.validateRegisteredUser(state.user)
         }
     }
 }

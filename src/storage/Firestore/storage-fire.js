@@ -17,6 +17,40 @@ export default {
         object.changedBy = userId
     },
 
+    async validateRegisteredUser (user) {
+        try {
+            const usersCollection = firebaseStore.collection('users')
+            const userDoc = await usersCollection.doc(user.uid).get()
+
+            if (!userDoc.exists) {
+                await usersCollection.doc(user.uid).set({
+                    id: user.uid,
+                    name: user.name,
+                    email: user.email,
+                    photoURL: user.photoURL
+                })
+            }
+        } catch (e) {
+            throw new Error(e.message)
+        }
+    },
+
+    async getUsersList () {
+        const usersList = []
+
+        try {
+            const users = await firebaseStore.collection('users').get()
+
+            for (const user of users.docs) {
+                usersList.push(user.data())
+            }
+        } catch (e) {
+            throw new Error(e.message)
+        }
+
+        return usersList
+    },
+
     async getLists (userId) {
         const results = []
         const ownerArgs = ['owner', '==', userId]
