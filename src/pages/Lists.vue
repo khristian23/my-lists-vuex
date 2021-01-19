@@ -1,6 +1,6 @@
 <template>
     <q-page class="flex">
-        <TheList :items="validLists" iconAction="edit"
+        <TheList :items="listsToRender" iconAction="edit"
             @itemPress="onListPress" @itemAction="onListEdit" @itemDelete="onListDelete"
             @orderUpdated="onOrderUpdated" />
 
@@ -16,13 +16,24 @@
 import { mapGetters, mapActions } from 'vuex'
 
 export default {
+    name: 'lists',
     components: {
         TheList: require('components/TheList').default,
         TheConfirmation: require('components/TheConfirmation').default,
         TheFooter: require('components/TheFooter').default
     },
     computed: {
-        ...mapGetters('lists', ['validLists'])
+        ...mapGetters('lists', ['validLists']),
+
+        listsToRender () {
+            return this.validLists.map(list => {
+                const renderList = list.toObject()
+                renderList.numberOfItems = list.listItems.filter(item => item.status === this.$Const.itemStatus.pending).length
+                renderList.actionIcon = list.isShared ? 'share' : 'edit'
+                renderList.canBeDeleted = !list.isShared
+                return renderList
+            })
+        }
     },
     methods: {
         ...mapActions('lists', ['saveLists', 'deleteList', 'updateListsOrder']),

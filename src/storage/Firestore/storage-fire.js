@@ -58,17 +58,20 @@ export default {
 
         async function loadListsFromFirebaseDocuments (listDocs, options) {
             for (const firebaseList of listDocs) {
-                const list = new List(firebaseList.data())
+                const firebaseListData = firebaseList.data()
+                const list = new List(firebaseListData)
                 list.id = firebaseList.id
                 list.isShared = list.owner !== userId
+                list.priority = firebaseListData.userPriorities ? firebaseListData.userPriorities[userId] : 0
 
-                const items = await listsCollection.doc(list.id).collection('items').where(...options).get()
+                const items = await listsCollection.doc(list.id).collection('items').get()
                 for (const item of items.docs) {
-                    const listItem = new ListItem(item.data())
+                    const firebaseItemData = item.data()
+                    const listItem = new ListItem(firebaseItemData)
                     listItem.id = item.id
                     listItem.listId = list.id
                     listItem.isShared = item.owner !== userId
-                    listItem.priority = item.userPriorities ? item.userPriorities[userId] : 0
+                    listItem.priority = firebaseItemData.userPriorities ? firebaseItemData.userPriorities[userId] : 0
                     list.addListItem(listItem)
                 }
                 results.push(list)
@@ -203,7 +206,11 @@ export default {
         firebaseObjectUpdate.modifiedAt = object.modifiedAt
         firebaseObjectUpdate[`userPriorities.${userId}`] = object.priority
 
-        return objectRef.update(firebaseObjectUpdate)
+        try {
+            return objectRef.update(firebaseObjectUpdate)
+        } catch (e) {
+            throw new Error(e.message)
+        }
     }
 
 }

@@ -7,6 +7,7 @@ class ListObject extends BaseObject {
         this._name = data.name
         this._priority = data.priority || 0
         this._owner = data.owner
+        this._isShared = data.isShared
         this._modifiedAt = data.modifiedAt
         this._changedBy = data.changedBy
     }

@@ -2,9 +2,9 @@
     <q-page class="flex">
         <q-form class="full-width q-pa-md" ref="myForm">
             <div class="text-h6 q-mb-sm">List Details</div>
-            <q-input outlined v-model="list.name" label="Name" class="q-mb-sm" :rules="[ val => val && val.length > 0 || 'Please enter a name']" />
-            <q-input outlined v-model="list.description" label="Description" class="q-mb-md" />
-            <q-select outlined v-model="selectedType" :options="$Const.lists.types" class="q-mb-md" @input="onTypeSelection" label="Type">
+            <q-input :disable="disable" outlined v-model="list.name" label="Name" class="q-mb-sm" :rules="[ val => val && val.length > 0 || 'Please enter a name']" />
+            <q-input :disable="disable" outlined v-model="list.description" label="Description" class="q-mb-md" />
+            <q-select :disable="disable" outlined v-model="selectedType" :options="$Const.lists.types" class="q-mb-md" @input="onTypeSelection" label="Type">
                 <template v-slot:prepend>
                     <q-icon :name="selectedType.icon" />
                 </template>
@@ -21,7 +21,7 @@
                     </q-item>
                     </template>
             </q-select>
-            <q-select outlined v-model="selectedSubType" :options="selectedType.subTypes" v-if="selectedType.subTypes.length" class="q-mb-md" label="Sub Type">
+            <q-select :disable="disable" outlined v-model="selectedSubType" :options="selectedType.subTypes" v-if="selectedType.subTypes.length" class="q-mb-md" label="Sub Type">
                 <template v-slot:prepend>
                     <q-icon :name="selectedType.icon" />
                 </template>
@@ -43,14 +43,15 @@
                         </q-item-section>
 
                         <q-item-section side>
-                            <q-toggle color="green" v-model="list.sharedWith" :val="user.id" />
+                            <q-chip color="green" text-color="white" v-if="user.id === list.owner">Owner</q-chip>
+                            <q-toggle :disable="disable" color="green" v-model="list.sharedWith" v-else :val="user.id" />
                         </q-item-section>
                     </q-item>
                 </q-list>
             </div>
         </q-form>
         <TheFooter>
-            <q-btn unelevated icon="save" @click="onSave" label="Save" />
+            <q-btn unelevated icon="save" @click="onSave" label="Save" v-if="!disable" />
         </TheFooter>
     </q-page>
 </template>
@@ -96,6 +97,10 @@ export default {
     },
     computed: {
         ...mapState('auth', ['user', 'users']),
+
+        disable () {
+            return this.list.isShared
+        },
 
         editMode () {
             return this.$route.params.id !== 'new'

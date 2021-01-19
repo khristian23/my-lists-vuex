@@ -102,6 +102,10 @@ export default {
             state.items.splice(index, 1, item)
         },
 
+        setListPriority (state, { list, priority }) {
+            list.priority = priority
+        },
+
         setItemState (state, { item, status }) {
             item.status = status
         },
@@ -183,13 +187,14 @@ export default {
             })
         },
 
-        async updateListsOrder ({ commit }, lists) {
+        async updateListsOrder ({ getters, commit }, lists) {
             const userId = getCurrentUser(this)
 
             await Storage.setListsPriority(userId, lists)
 
             lists.forEach(changedList => {
-                commit('updateList', changedList)
+                const list = getters.getListById(changedList.id)
+                commit('setListPriority', { list, priority: changedList.priority })
             })
         }
     }

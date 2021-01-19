@@ -12,7 +12,7 @@
                 <q-item-section>
                     <div class="row">
                         <q-btn flat icon="drag_indicator" class="handle" v-if="prioritize" />
-                        <q-btn flat round color="primary" :icon="itemIcon" v-else size="12px" @click.stop="onItemAction(item.id)" />
+                        <q-btn flat round color="primary" :icon="item.actionIcon || iconAction" v-else size="12px" @click.stop="onItemAction(item.id)" />
                         <div class="column justify-center item-label">
                             <q-item-label :class="classes">{{ item.name }}</q-item-label>
                             <q-item-label :class="classes" caption lines="2" v-if="item.description">{{ item.description }}</q-item-label>
@@ -20,10 +20,10 @@
                     </div>
                 </q-item-section>
 
-                <q-item-section side top>
+                <q-item-section side>
                     <div class="column">
-                        <q-btn flat round color="primary" icon="delete" size="10px" @click.stop="onItemDelete(item.id)" />
-                        <q-item-label v-if="item.listItems">{{ getItemsCount(item.listItems) }} items</q-item-label>
+                        <q-btn flat round color="primary" icon="delete" size="10px" @click.stop="onItemDelete(item.id)" v-if="item.canBeDeleted === undefined || item.canBeDeleted" />
+                        <q-item-label v-if="item.numberOfItems !== undefined" class="vertical-middle">{{ item.numberOfItems }} items</q-item-label>
                     </div>
                 </q-item-section>
             </q-item>
@@ -50,7 +50,7 @@ export default {
         items: {
             immediate: true,
             handler () {
-                this.localItems = this.items.map(item => item.clone())
+                this.localItems = this.items.map(item => item.toObject ? item.toObject() : Object.assign({}, item))
             }
         }
     },
@@ -65,9 +65,6 @@ export default {
     methods: {
         getScratchedClass (baseClass) {
             return this.scratched !== undefined ? baseClass + ' scratched' : baseClass
-        },
-        getItemsCount (listItems) {
-            return listItems.filter(item => item.status === this.$Const.itemStatus.pending && item.syncStatus !== this.$Const.changeStatus.deleted).length
         },
         onDrop () {
             this.localItems.forEach((item, index) => {

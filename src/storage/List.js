@@ -67,14 +67,14 @@ class List extends ListObject {
     }
 
     toObject () {
-        const keys = ['id', 'name', 'description', 'priority', 'type', 'subtype', 'modifiedAt',
-            'syncStatus', 'firebaseId', 'userId']
+        const keys = ['id', 'name', 'description', 'priority', 'type', 'subtype', 'modifiedAt', 'changedBy', 'owner', 'isShared']
         return this._createObject(keys)
     }
 
     clone () {
         const listClone = new List(this.toObject())
         listClone.listItems = this.listItems.map(item => item.clone())
+        listClone.sharedWith = [...this.sharedWith]
         return listClone
     }
 }
