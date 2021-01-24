@@ -31,3 +31,9 @@ yarn-error.log*
 *.ntvs*
 *.njsproj
 *.sln
+
+# Firebase
+.firebase
+
+# Project settings
+.vscode

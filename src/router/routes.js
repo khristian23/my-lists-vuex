@@ -31,6 +31,10 @@ const routes = [{
         path: '/profile',
         name: Consts.routes.profile,
         component: () => import(/* webpackChunkName: "Profile" */ 'pages/Profile')
+    }, {
+        path: '/profile-picture',
+        name: Consts.routes.camera,
+        component: () => import(/* webpackChunkName: "Camera" */ 'pages/ProfilePicture')
     }]
 },
 

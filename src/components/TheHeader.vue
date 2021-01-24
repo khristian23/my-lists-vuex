@@ -38,9 +38,11 @@ export default {
     props: ['customTitle'],
     computed: {
         ...mapState('auth', ['user']),
+
         isLoggedIn () {
             return this.user && !this.user.isAnonymous
         },
+
         initials () {
             if (this.isLoggedIn) {
                 const name = this.user.name || this.user.email
@@ -50,10 +52,17 @@ export default {
             }
             return ''
         },
+
         title () {
-            const title = this.$store.getters['app/title'] || this.$route.name
+            let title = this.$store.getters['app/title']
+
+            if (!title) {
+                title = this.$route.name.replace(/-/g, ' ')
+            }
+
             return format.capitalize(title)
         },
+
         showBackButton () {
             return this.$route.name !== Consts.routes.lists
         }

@@ -155,10 +155,6 @@ export default {
             }
         },
 
-        onShareWith (e) {
-            debugger
-        },
-
         async onSave () {
             const isValid = await this.$refs.myForm.validate()
             if (!isValid) {

@@ -49,6 +49,7 @@ export default {
         listItem: 'list-item',
         login: 'login',
         register: 'register',
-        profile: 'profile'
+        profile: 'profile',
+        camera: 'profile-picture'
     }
 }

@@ -24,6 +24,10 @@ export default {
 
         setUsers (state, users) {
             state.users = users
+        },
+
+        setUserLocation (state, location) {
+            state.user.location = location
         }
     },
     actions: {
@@ -54,7 +58,8 @@ export default {
                             email: user.email,
                             uid: user.uid,
                             photoURL: user.photoURL,
-                            isAnonymous: user.isAnonymous
+                            isAnonymous: user.isAnonymous,
+                            location: ''
                         })
 
                         dispatch('onUserLoggedIn')
