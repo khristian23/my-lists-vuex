@@ -188,25 +188,27 @@ export default {
         async updateItemsOrder ({ getters, commit }, { listId, listItems }) {
             const userId = getCurrentUser(this)
 
-            listItems.forEach(changedItem => {
+            const storeListItems = listItems.map(changedItem => {
                 const item = getters.getListItemById(changedItem.id)
                 commit('setModificationValues', { userId, object: item })
                 commit('setItemPriority', { item, priority: changedItem.priority })
+                return item
             })
 
-            await Storage.setItemsPriority(userId, listId, listItems)
+            await Storage.setItemsPriority(userId, listId, storeListItems)
         },
 
         async updateListsOrder ({ getters, commit }, lists) {
             const userId = getCurrentUser(this)
 
-            lists.forEach(changedList => {
+            const storeLists = lists.map(changedList => {
                 const list = getters.getListById(changedList.id)
                 commit('setModificationValues', { userId, object: list })
                 commit('setListPriority', { list, priority: changedList.priority })
+                return list
             })
 
-            await Storage.setListsPriority(userId, lists)
+            await Storage.setListsPriority(userId, storeLists)
         }
     }
 }
