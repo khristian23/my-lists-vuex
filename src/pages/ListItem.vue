@@ -1,7 +1,7 @@
 <template>
     <q-page class="flex">
         <q-form ref="myForm" class="full-width q-pa-md">
-            <q-input outlined v-model="listItem.name" label="Name" :rules="[ val => val && val.length > 0 || 'Please enter a name']" />
+            <q-input outlined v-model="listItem.name" label="Name" :rules="[ val => val && val.length > 0 || 'Please enter a name']" @keydown.enter.prevent="" />
             <q-select outlined v-model="listItem.status" :options="statusList" label="Status" :readonly="!editMode" :emit-value="true" class="q-pb-md" />
             <q-input outlined v-model="listItem.notes" label="Notes" type="textarea" class="q-pb-md" />
         </q-form>
