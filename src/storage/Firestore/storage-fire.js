@@ -12,11 +12,6 @@ export default {
         }
     },
 
-    setModificationValues (userId, object) {
-        object.modifiedAt = Date.now()
-        object.changedBy = userId
-    },
-
     async validateRegisteredUser (user) {
         try {
             const usersCollection = firebaseStore.collection('users')
@@ -89,8 +84,6 @@ export default {
     },
 
     async saveList (userId, list) {
-        this.setModificationValues(userId, list)
-
         const firebaseList = this.getFirebaseObject(list)
 
         try {
@@ -117,8 +110,6 @@ export default {
         if (!listItem.listId) {
             throw new Error('List item must have be part of a list')
         }
-
-        this.setModificationValues(userId, listItem)
 
         const firebaseListItem = this.getFirebaseObject(listItem)
 
@@ -198,9 +189,21 @@ export default {
         })
     },
 
-    async updateObjectPriotity (userId, objectRef, object) {
-        this.setModificationValues(userId, object)
+    async setItemStatus (userId, listItem, status) {
+        const firebaseObjectUpdate = {}
+        firebaseObjectUpdate.changedBy = listItem.changedBy
+        firebaseObjectUpdate.modifiedAt = listItem.modifiedAt
+        firebaseObjectUpdate.status = status
 
+        try {
+            const itemRef = this.getItemFirebaseReference(listItem.listId, listItem.id)
+            return itemRef.update(firebaseObjectUpdate)
+        } catch (e) {
+            throw new Error(e.message)
+        }
+    },
+
+    async updateObjectPriotity (userId, objectRef, object) {
         const firebaseObjectUpdate = {}
         firebaseObjectUpdate.changedBy = object.changedBy
         firebaseObjectUpdate.modifiedAt = object.modifiedAt

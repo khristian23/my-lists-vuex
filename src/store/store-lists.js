@@ -24,18 +24,6 @@ function getListIndexById (lists, listId) {
     }
 }
 
-async function updateList ({ getters, commit, dispatch }, listId) {
-    const list = getters.getListById(listId)
-    await dispatch('saveList', list)
-}
-
-async function setItemStatus ({ getters, commit, dispatch }, itemId, status) {
-    const item = getters.getListItemById(itemId)
-    commit('setItemState', { item, status })
-
-    await updateList({ getters, commit, dispatch }, item.listId)
-}
-
 export default {
     namespaced: true,
 
@@ -112,6 +100,11 @@ export default {
 
         setItemPriority (state, { item, priority }) {
             item.priority = priority
+        },
+
+        setModificationValues (state, { userId, object }) {
+            object.modifiedAt = Date.now()
+            object.changedBy = userId
         }
     },
 
@@ -130,13 +123,16 @@ export default {
 
         async saveList ({ commit }, list) {
             const userId = getCurrentUser(this)
-            await Storage.saveList(userId, list)
+
+            commit('setModificationValues', { userId, object: list })
 
             if (list.syncStatus === Consts.changeStatus.new) {
                 commit('addList', list)
             } else {
                 commit('updateList', list)
             }
+
+            await Storage.saveList(userId, list)
         },
 
         async saveLists ({ commit }, lists) {
@@ -153,16 +149,29 @@ export default {
             commit('removeListByIndex', listIndex)
         },
 
-        async setItemToDone (context, itemId) {
-            await setItemStatus(context, itemId, Consts.itemStatus.done)
+        async setItemStatus ({ getters, commit }, { itemId, status }) {
+            const item = getters.getListItemById(itemId)
+            const userId = getCurrentUser(this)
+
+            commit('setModificationValues', { userId, object: item })
+            commit('setItemState', { item, status })
+
+            await Storage.setItemStatus(userId, item, status)
         },
 
-        async setItemToPending (context, itemId) {
-            await setItemStatus(context, itemId, Consts.itemStatus.pending)
+        async setItemToDone ({ dispatch }, itemId) {
+            return dispatch('setItemStatus', { itemId, status: Consts.itemStatus.done })
+        },
+
+        async setItemToPending ({ dispatch }, itemId) {
+            return dispatch('setItemStatus', { itemId, status: Consts.itemStatus.pending })
         },
 
         async saveItem ({ commit }, item) {
             const userId = getCurrentUser(this)
+
+            commit('setModificationValues', { userId, object: item })
+
             await Storage.saveListItem(userId, item)
 
             commit('updateListItemInStore', item)
@@ -179,23 +188,25 @@ export default {
         async updateItemsOrder ({ getters, commit }, { listId, listItems }) {
             const userId = getCurrentUser(this)
 
-            await Storage.setItemsPriority(userId, listId, listItems)
-
             listItems.forEach(changedItem => {
                 const item = getters.getListItemById(changedItem.id)
+                commit('setModificationValues', { userId, object: item })
                 commit('setItemPriority', { item, priority: changedItem.priority })
             })
+
+            await Storage.setItemsPriority(userId, listId, listItems)
         },
 
         async updateListsOrder ({ getters, commit }, lists) {
             const userId = getCurrentUser(this)
 
-            await Storage.setListsPriority(userId, lists)
-
             lists.forEach(changedList => {
                 const list = getters.getListById(changedList.id)
+                commit('setModificationValues', { userId, object: list })
                 commit('setListPriority', { list, priority: changedList.priority })
             })
+
+            await Storage.setListsPriority(userId, lists)
         }
     }
 }
