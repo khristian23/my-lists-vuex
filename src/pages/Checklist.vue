@@ -1,12 +1,10 @@
 <template>
     <q-page class="flex">
-        <TheList :items="pendingItems" iconAction="done" class="lists"
-            @itemPress="onItemPress" @itemAction="setItemToDone" @itemDelete="onItemDelete" v-if="hasPendingItems"
+        <TheList :items="checklistItems" class="lists"
+            @itemPress="onItemPress" @itemAction="onToggleItem" @itemDelete="onItemDelete"
             @orderUpdated="onOrderUpdated" />
-        <TheList header="Done" :items="doneItems" iconAction="redo" class="lists self-end"
-            @itemPress="onItemPress" @itemAction="setItemToPending" @itemDelete="onItemDelete" v-if="hasDoneItems"
-            scratched="true" />
         <TheFooter>
+            <q-btn unelevated @click="onClearList" label="UnCheck All" />
             <TheQuickCreate @quickCreate="onQuickCreate" @create="onCreate" />
         </TheFooter>
     </q-page>
@@ -17,7 +15,7 @@ import { mapGetters, mapActions, mapMutations } from 'vuex'
 import ListItem from 'src/storage/ListItem'
 
 export default {
-    name: 'list-items',
+    name: 'checklist',
     components: {
         TheFooter: require('components/TheFooter').default,
         TheList: require('components/TheList').default,
@@ -38,27 +36,28 @@ export default {
         }
     },
     computed: {
-        ...mapGetters('lists', ['pendingItems', 'doneItems']),
+        ...mapGetters('lists', ['allListItems']),
 
         list () {
             const listId = this.$route.params.id
             return this.$store.getters['lists/getListById'](listId)
         },
-
-        noItems () {
-            return !(this.hasPendingItems || this.hasDoneItems)
-        },
-        hasPendingItems () {
-            return !!this.pendingItems.length
-        },
-        hasDoneItems () {
-            return !!this.doneItems.length
+        checklistItems () {
+            return this.allListItems.map(item => {
+                const renderItem = item.toObject()
+                const isPending = item.status === this.$Const.itemStatus.pending
+                renderItem.actionIcon = isPending ? 'check_box_outline_blank' : 'check_box'
+                return renderItem
+            })
         }
     },
     methods: {
         ...mapMutations('app', ['setTitle']),
 
-        ...mapActions('lists', ['getListItems', 'setItemToDone', 'setItemToPending', 'updateItemsOrder', 'deleteItem', 'saveItem']),
+        ...mapGetters('lists', ['getListItemById']),
+
+        ...mapActions('lists', ['getListItems', 'getListItemById', 'setItemToDone', 'setItemToPending', 'updateItemsOrder',
+            'deleteItem', 'saveItem', 'setListItemsToPending']),
 
         async _intializeListItems () {
             this.$q.loading.show()
@@ -75,7 +74,7 @@ export default {
                 name: name,
                 status: this.$Const.itemStatus.pending,
                 listId: this.list.id,
-                priority: this.pendingItems.length + 1
+                priority: this.checklistItems.length + 1
             })
             try {
                 await this.saveItem(listItem)
@@ -90,6 +89,28 @@ export default {
 
         onItemPress (itemId) {
             this.$router.push({ name: this.$Const.routes.listItem, params: { list: this.list.id, id: itemId } })
+        },
+
+        async onToggleItem (itemId) {
+            try {
+                const item = this.checklistItems.find(item => item.id === itemId)
+
+                if (item.status === this.$Const.itemStatus.pending) {
+                    await this.setItemToDone(itemId)
+                } else {
+                    await this.setItemToPending(itemId)
+                }
+            } catch (e) {
+                this.$emit('showError', e.message)
+            }
+        },
+
+        onClearList () {
+            try {
+                this.setListItemsToPending(this.list.id)
+            } catch (e) {
+                this.$emit('showError', e.message)
+            }
         },
 
         async onItemDelete (itemId) {

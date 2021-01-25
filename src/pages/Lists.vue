@@ -23,7 +23,7 @@ export default {
         TheFooter: require('components/TheFooter').default
     },
     computed: {
-        ...mapGetters('lists', ['validLists']),
+        ...mapGetters('lists', ['validLists', 'getListById']),
 
         listsToRender () {
             return this.validLists.map(list => {
@@ -38,7 +38,14 @@ export default {
     methods: {
         ...mapActions('lists', ['saveLists', 'deleteList', 'updateListsOrder']),
         onListPress (listId) {
-            this.$router.push({ name: this.$Const.routes.listItems, params: { id: listId } })
+            const list = this._getListById(listId)
+            let routeName = this.$Const.routes.listItems
+
+            if (list.type === this.$Const.listTypes.checklist) {
+                routeName = this.$Const.routes.checklist
+            }
+
+            this.$router.push({ name: routeName, params: { id: listId } })
         },
         _getListById (listId) {
             return this.validLists.find(list => list.id === listId)

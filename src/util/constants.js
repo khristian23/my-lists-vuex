@@ -2,6 +2,12 @@ export default {
     user: {
         anonymous: 'Anonymous'
     },
+    listTypes: {
+        toDoList: 'todo',
+        shoppingCart: 'shop',
+        whishlist: 'wish',
+        checklist: 'check'
+    },
     lists: {
         types: [{
             value: 'todo',
@@ -30,6 +36,17 @@ export default {
             label: 'Whishlist',
             icon: 'star_rate',
             subTypes: []
+        }, {
+            value: 'check',
+            label: 'Checklist',
+            icon: 'library_add_check',
+            subTypes: [{
+                value: 'personal',
+                label: 'Personal'
+            }, {
+                value: 'work',
+                label: 'Work'
+            }]
         }]
     },
     itemStatus: {
@@ -47,6 +64,7 @@ export default {
         list: 'list',
         listItems: 'list-items',
         listItem: 'list-item',
+        checklist: 'checklist',
         login: 'login',
         register: 'register',
         profile: 'profile',

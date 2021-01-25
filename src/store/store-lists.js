@@ -12,10 +12,6 @@ function sortByPriority (a, b) {
     return a.priority - b.priority
 }
 
-function filterOutDeletedLists (list) {
-    return list.syncStatus !== Consts.changeStatus.deleted
-}
-
 function getListIndexById (lists, listId) {
     for (let i = 0; i < lists.length; i++) {
         if (lists[i].id === listId) {
@@ -45,17 +41,22 @@ export default {
 
         validLists: (state) => {
             const lists = [].concat(state.lists)
-            return lists.filter(filterOutDeletedLists).sort(sortByPriority)
+            return lists.sort(sortByPriority)
         },
 
         pendingItems (state) {
             const items = [].concat(state.items)
-            return items.filter(item => item.status === Consts.itemStatus.pending).filter(filterOutDeletedLists).sort(sortByPriority)
+            return items.filter(item => item.status === Consts.itemStatus.pending).sort(sortByPriority)
         },
 
         doneItems (state) {
             const items = [].concat(state.items)
-            return items.filter(item => item.status === Consts.itemStatus.done).filter(filterOutDeletedLists).sort(sortByPriority)
+            return items.filter(item => item.status === Consts.itemStatus.done).sort(sortByPriority)
+        },
+
+        allListItems (state) {
+            const items = [].concat(state.items)
+            return items.sort(sortByPriority)
         }
     },
 
@@ -165,6 +166,14 @@ export default {
 
         async setItemToPending ({ dispatch }, itemId) {
             return dispatch('setItemStatus', { itemId, status: Consts.itemStatus.pending })
+        },
+
+        async setListItemsToPending ({ getters, dispatch }, listId) {
+            const list = getters.getListById(listId)
+
+            return list.listItems.map(item => {
+                return dispatch('setItemToPending', item.id)
+            })
         },
 
         async saveItem ({ commit }, item) {

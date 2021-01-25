@@ -20,6 +20,10 @@ const routes = [{
         name: Consts.routes.list,
         component: () => import(/* webpackChunkName: "EditList" */ 'pages/List')
     }, {
+        path: '/checklist/:id/items',
+        name: Consts.routes.checklist,
+        component: () => import(/* webpackChunkName: "CheckList" */ 'pages/Checklist')
+    }, {
         path: '/login',
         name: Consts.routes.login,
         component: () => import(/* webpackChunkName: "Login" */ 'pages/Login')
