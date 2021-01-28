@@ -162,7 +162,9 @@ export default {
             }
 
             this.list.type = this.selectedType.value
-            this.list.subtype = this.selectedSubType.value
+            if (this.selectedSubType) {
+                this.list.subtype = this.selectedSubType.value
+            }
 
             this.list.modifiedAt = new Date().getTime()
             if (this.list.id) {
