@@ -29,16 +29,10 @@ import { mapState } from 'vuex'
 
 const linksData = [
     {
-        title: 'My Lists',
+        title: 'All Lists',
         caption: '',
-        icon: 'list',
+        icon: 'select_all',
         link: '/'
-    },
-    {
-        title: 'Settings',
-        caption: '',
-        icon: 'settings',
-        link: '/settings'
     }
 ]
 
@@ -50,14 +44,25 @@ export default {
     },
     data () {
         return {
-            leftDrawerOpen: false,
-            menuLinks: linksData
+            leftDrawerOpen: false
         }
     },
     computed: {
         ...mapState('auth', ['user']),
+
         initials () {
             return this.$Utils.getUserInitials(this.user)
+        },
+
+        menuLinks () {
+            const filters = this.$Const.lists.types.map(type => {
+                return {
+                    title: type.label,
+                    icon: type.icon,
+                    link: `/?type=${type.value}`
+                }
+            })
+            return linksData.concat(filters)
         }
     },
     methods: {

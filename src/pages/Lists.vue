@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapMutations, mapGetters, mapActions } from 'vuex'
 
 export default {
     name: 'lists',
@@ -22,21 +22,52 @@ export default {
         TheConfirmation: require('components/TheConfirmation').default,
         TheFooter: require('components/TheFooter').default
     },
+    data () {
+        return {
+            filterBy: ''
+        }
+    },
+    mounted () {
+        this.filterBy = this.$route.query.type
+    },
+    watch: {
+        $route () {
+            this.filterBy = this.$route.query.type
+        },
+        filterBy () {
+            let title = 'All List'
+
+            if (this.filterBy) {
+                title = this.$Const.lists.types.find(({ value }) => value === this.filterBy).label
+            }
+
+            this.setTitle(`${title}s`)
+        }
+    },
     computed: {
         ...mapGetters('lists', ['validLists', 'getListById']),
 
         listsToRender () {
-            return this.validLists.map(list => {
-                const renderList = list.toObject()
-                renderList.numberOfItems = list.listItems.filter(item => item.status === this.$Const.itemStatus.pending).length
-                renderList.actionIcon = list.isShared ? 'share' : 'edit'
-                renderList.canBeDeleted = !list.isShared
-                return renderList
-            })
+            return this.validLists
+                .filter(({ type }) => {
+                    if (this.filterBy) {
+                        return type === this.filterBy
+                    }
+                    return true
+                })
+                .map(list => {
+                    const renderList = list.toObject()
+                    renderList.numberOfItems = list.listItems.filter(item => item.status === this.$Const.itemStatus.pending).length
+                    renderList.actionIcon = list.isShared ? 'share' : 'edit'
+                    renderList.canBeDeleted = !list.isShared
+                    return renderList
+                })
         }
     },
     methods: {
+        ...mapMutations('app', ['setTitle']),
         ...mapActions('lists', ['saveLists', 'deleteList', 'updateListsOrder']),
+
         onListPress (listId) {
             const list = this._getListById(listId)
             let routeName = this.$Const.routes.listItems
