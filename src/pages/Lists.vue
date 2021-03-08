@@ -1,10 +1,10 @@
 <template>
     <q-page class="flex">
+        <TheListLoader v-if="isLoadingLists" />
         <TheList :items="listsToRender" iconAction="edit"
             @itemPress="onListPress" @itemAction="onListEdit" @itemDelete="onListDelete"
             @orderUpdated="onOrderUpdated"
-            v-if="!isLoadingLists" />
-        <TheListLoader v-else />
+            v-else-if="!isLoadingLists && listsToRender.length" />
 
         <TheConfirmation ref="confirmation" />
 
