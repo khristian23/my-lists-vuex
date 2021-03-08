@@ -24,7 +24,10 @@
             round dense
             v-if="isLoggedIn"
             to="/profile">
-            <q-avatar size="38px">{{ initials }}</q-avatar>
+            <q-avatar size="38px">
+                <img v-if="user.photoURL" :src="user.photoURL">
+                <span v-else>{{ initials }}</span>
+            </q-avatar>
         </q-btn>
     </q-toolbar>
 </template>
