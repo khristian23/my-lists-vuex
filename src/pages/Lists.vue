@@ -2,7 +2,9 @@
     <q-page class="flex">
         <TheList :items="listsToRender" iconAction="edit"
             @itemPress="onListPress" @itemAction="onListEdit" @itemDelete="onListDelete"
-            @orderUpdated="onOrderUpdated" />
+            @orderUpdated="onOrderUpdated"
+            v-if="!isLoadingLists" />
+        <TheListLoader v-else />
 
         <TheConfirmation ref="confirmation" />
 
@@ -20,7 +22,8 @@ export default {
     components: {
         TheList: require('components/TheList').default,
         TheConfirmation: require('components/TheConfirmation').default,
-        TheFooter: require('components/TheFooter').default
+        TheFooter: require('components/TheFooter').default,
+        TheListLoader: require('components/TheListLoader').default
     },
     data () {
         return {
@@ -45,7 +48,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters('lists', ['validLists', 'getListById']),
+        ...mapGetters('lists', ['isLoadingLists', 'validLists', 'getListById']),
 
         listsToRender () {
             return this.validLists

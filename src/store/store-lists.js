@@ -24,11 +24,14 @@ export default {
     namespaced: true,
 
     state: {
+        loading: false,
         lists: [],
         items: []
     },
 
     getters: {
+        isLoadingLists: (state) => state.loading,
+
         getLists: (state) => state.lists,
 
         getListById: (state) => (listId) => {
@@ -61,6 +64,10 @@ export default {
     },
 
     mutations: {
+        loadingLists (state, value) {
+            state.loading = value
+        },
+
         removeListByIndex (state, listIndex) {
             state.lists.splice(listIndex, 1)
         },
@@ -111,8 +118,10 @@ export default {
 
     actions: {
         async loadUserLists ({ commit }, userId) {
+            commit('loadingLists', true)
             const lists = await Storage.getLists(userId) || []
             commit('setLists', lists)
+            commit('loadingLists', false)
         },
 
         getListItems ({ commit, getters }, listId) {

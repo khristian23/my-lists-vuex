@@ -14,9 +14,9 @@
             <q-item v-for="item in localItems" :key="item.id" clickable @click="onItemClick(item.id)">
                 <q-item-section>
                     <div class="row">
-                        <q-btn flat icon="drag_indicator" class="handle" v-if="prioritize" />
+                        <q-btn flat icon="drag_indicator" class="handle" v-if="prioritize" size="12px" />
                         <q-btn flat round color="primary" :icon="item.actionIcon || iconAction" size="12px" @click.stop="onItemAction(item.id)" v-else />
-                        <div class="column justify-center item-label">
+                        <div class="col justify-center item-label">
                             <q-item-label :class="classes">{{ item.name }}</q-item-label>
                             <q-item-label :class="classes" caption lines="2" v-if="item.description">{{ item.description }}</q-item-label>
                         </div>
@@ -24,7 +24,7 @@
                 </q-item-section>
 
                 <q-item-section side>
-                    <div class="column">
+                    <div class="col">
                         <q-btn flat round color="primary" icon="delete" size="10px" @click.stop="onItemDelete(item.id)" v-if="item.canBeDeleted === undefined || item.canBeDeleted" />
                         <q-item-label v-if="item.numberOfItems !== undefined" class="vertical-middle">{{ item.numberOfItems }} items</q-item-label>
                     </div>
