@@ -66,10 +66,12 @@ export default {
                     } else {
                         // No network found and no local firebase storage
                         commit('setUser', createAnonymousUser())
+                        dispatch('onUserLoggedOut')
                     }
                 })
             } catch (error) {
                 commit('setUser', createAnonymousUser())
+                dispatch('onUserLoggedOut')
             }
         },
         logoutUser () {
@@ -94,6 +96,10 @@ export default {
 
         async onUserLoggedIn ({ state, commit, dispatch }) {
             return Storage.validateRegisteredUser(state.user)
+        },
+
+        async onUserLoggedOut ({ state }) {
+            this.$router.replace({ name: Constants.routes.login })
         }
     }
 }
