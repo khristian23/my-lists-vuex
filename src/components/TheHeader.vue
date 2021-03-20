@@ -25,7 +25,7 @@
             v-if="isLoggedIn"
             to="/profile">
             <q-avatar size="38px">
-                <img v-if="user.photoURL" :src="user.photoURL">
+                <img v-if="user.photoURL" :src="user.photoURL" style="object-fit: cover;">
                 <span v-else>{{ initials }}</span>
             </q-avatar>
         </q-btn>

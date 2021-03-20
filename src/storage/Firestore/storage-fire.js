@@ -1,4 +1,4 @@
-import { firebaseStore } from 'src/boot/firebase'
+import { firebaseStore, firebaseStorage } from 'src/boot/firebase'
 import List from 'src/storage/List'
 import ListItem from 'src/storage/ListItem'
 
@@ -44,6 +44,39 @@ export default {
         }
 
         return usersList
+    },
+
+    async getUserPhotoURLFromStorage (userId) {
+        try {
+            const usersCollection = firebaseStore.collection('users')
+            const userSnapshot = await usersCollection.doc(userId).get()
+            return userSnapshot.data().photoURL
+        } catch (e) {
+            throw new Error(e.message)
+        }
+    },
+
+    async updatePhotoProfile (userId, photo) {
+        let photoURL
+
+        try {
+            const storageRef = firebaseStorage.ref()
+            const userProfileRef = storageRef.child(`userProfiles/${userId}.jpg`)
+
+            const snapshot = await userProfileRef.put(photo)
+            photoURL = await snapshot.ref.getDownloadURL()
+
+            const usersCollection = firebaseStore.collection('users')
+            const userRef = usersCollection.doc(userId)
+
+            await userRef.update({
+                photoURL: photoURL
+            })
+        } catch (e) {
+            throw new Error(e.message)
+        }
+
+        return photoURL
     },
 
     async getLists (userId) {

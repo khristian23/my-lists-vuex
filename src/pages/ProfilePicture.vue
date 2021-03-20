@@ -47,17 +47,7 @@ export default {
         ...mapState('auth', ['user'])
     },
     methods: {
-        ...mapActions('auth', ['logoutUser']),
-
-        async onLogout () {
-            try {
-                await this.logoutUser()
-                this.$emit('showToast', 'User Logged out')
-                this.$router.replace({ name: this.$Const.routes.login })
-            } catch (e) {
-                this.$emit('showError', e.message)
-            }
-        },
+        ...mapActions('auth', ['updatePhotoProfile']),
 
         async initCamera () {
             try {
@@ -84,12 +74,21 @@ export default {
             this.imageCaptured = true
         },
 
-        onSave () {
+        async onSave () {
             if (!this.imageCaptured) {
                 this.$emit('showError', 'Please take a picture before saving')
+                return
             }
 
-            this.post.photo = this.dataURItoBlob(this.$refs.canvas)
+            try {
+                this.post.photo = this.dataURItoBlob(this.$refs.canvas.toDataURL())
+                await this.updatePhotoProfile(this.post.photo)
+
+                this.$emit('showToast', 'Photo Profile updated')
+                this.$router.replace({ name: this.$Const.routes.profile })
+            } catch (e) {
+                this.$emit('showError', e.message)
+            }
         },
 
         dataURItoBlob (dataURI) {

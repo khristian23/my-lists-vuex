@@ -22,6 +22,10 @@ export default {
             state.user = user
         },
 
+        updatePhotoURL (state, photoURL) {
+            state.user.photoURL = photoURL
+        },
+
         setUsers (state, users) {
             state.users = users
         },
@@ -94,12 +98,23 @@ export default {
             }
         },
 
-        async onUserLoggedIn ({ state, commit, dispatch }) {
-            return Storage.validateRegisteredUser(state.user)
+        async onUserLoggedIn ({ state, commit }) {
+            const photoURL = await Storage.getUserPhotoURLFromStorage(state.user.uid)
+
+            if (!photoURL) {
+                await Storage.validateRegisteredUser(state.user)
+            } else {
+                commit('updatePhotoURL', photoURL)
+            }
         },
 
         async onUserLoggedOut ({ state }) {
             this.$router.replace({ name: Constants.routes.login })
+        },
+
+        async updatePhotoProfile ({ state, commit }, photo) {
+            const photoURL = await Storage.updatePhotoProfile(state.user.uid, photo)
+            commit('updatePhotoURL', photoURL)
         }
     }
 }
