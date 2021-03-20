@@ -80,6 +80,7 @@ export default {
                 return
             }
 
+            this.$q.loading.show()
             try {
                 this.post.photo = this.dataURItoBlob(this.$refs.canvas.toDataURL())
                 await this.updatePhotoProfile(this.post.photo)
@@ -89,6 +90,7 @@ export default {
             } catch (e) {
                 this.$emit('showError', e.message)
             }
+            this.$q.loading.hide()
         },
 
         dataURItoBlob (dataURI) {
