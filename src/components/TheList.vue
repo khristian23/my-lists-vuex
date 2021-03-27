@@ -13,10 +13,10 @@
         <draggable tag="q-list" v-model="localItems" @end="onDrop" v-if="!hide" handle=".handle">
             <q-item v-for="item in localItems" :key="item.id" clickable @click="onItemClick(item.id)">
                 <q-item-section>
-                    <div class="row">
+                    <div class="row no-wrap">
                         <q-btn flat icon="drag_indicator" class="handle" v-if="prioritize" size="12px" />
                         <q-btn flat round color="primary" :icon="item.actionIcon || iconAction" size="12px" @click.stop="onItemAction(item.id)" v-else />
-                        <div class="col justify-center item-label">
+                        <div class="column self-center">
                             <q-item-label :class="classes">{{ item.name }}</q-item-label>
                             <q-item-label :class="classes" caption lines="2" v-if="item.description">{{ item.description }}</q-item-label>
                         </div>
@@ -24,9 +24,10 @@
                 </q-item-section>
 
                 <q-item-section side>
-                    <div class="col">
-                        <q-btn flat round color="primary" icon="delete" size="10px" @click.stop="onItemDelete(item.id)" v-if="item.canBeDeleted === undefined || item.canBeDeleted" />
-                        <q-item-label v-if="item.numberOfItems !== undefined" class="vertical-middle">{{ item.numberOfItems }} items</q-item-label>
+                    <div class="column">
+                        <q-btn flat round color="primary" align="right" icon="delete" size="10px" @click.stop="onItemDelete(item.id)"
+                            v-if="item.canBeDeleted === undefined || item.canBeDeleted" />
+                        <q-item-label v-if="item.numberOfItems !== undefined">{{ item.numberOfItems }} items</q-item-label>
                     </div>
                 </q-item-section>
             </q-item>
@@ -63,16 +64,13 @@ export default {
             return this.iconAction || 'create'
         },
         classes () {
-            return this.scratched ? 'scratched' : ''
+            return 'item-text' + (this.scratched ? ' scratched' : '')
         },
         toggleHideIcon () {
             return this.hide ? 'expand_less' : 'expand_more'
         }
     },
     methods: {
-        getScratchedClass (baseClass) {
-            return this.scratched !== undefined ? baseClass + ' scratched' : baseClass
-        },
         onDrop () {
             this.localItems.forEach((item, index) => {
                 item.priority = index + 1
@@ -93,11 +91,11 @@ export default {
 </script>
 
 <style>
-    .scratched {
-        text-decoration: line-through;
+    .item-text {
+        overflow-wrap: anywhere;
     }
 
-    .item-label {
-        max-width: 85%;
+    .scratched {
+        text-decoration: line-through;
     }
 </style>
