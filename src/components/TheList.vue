@@ -1,21 +1,18 @@
 <template>
     <div class="full-width">
-        <q-banner inline-actions>
-            <div v-if="header" class="text-h6">{{ header }}</div>
-            <template v-slot:action v-if="!scratched">
-                <q-toggle v-model="prioritize" color="green" label="Prioritize" />
-            </template>
-            <template v-slot:action v-else>
+        <q-banner inline-actions v-if="header">
+            <div class="text-h6">{{ header }}</div>
+            <template v-slot:action>
                 <q-btn flat round color="black" :icon="toggleHideIcon" @click="hide=!hide" />
             </template>
         </q-banner>
 
         <draggable tag="q-list" v-model="localItems" @end="onDrop" v-if="!hide" handle=".handle">
-            <q-item v-for="item in localItems" :key="item.id" clickable @click="onItemClick(item.id)">
+            <q-item v-for="item in localItems" :key="item.id" clickable @click="onItemClick(item.id)" class="q-px-sm">
                 <q-item-section>
                     <div class="row no-wrap">
-                        <q-btn flat icon="drag_indicator" class="handle" v-if="prioritize" size="12px" />
-                        <q-btn flat round color="primary" :icon="item.actionIcon || iconAction" size="12px" @click.stop="onItemAction(item.id)" v-else />
+                        <q-btn flat round icon="drag_indicator" class="handle" size="12px" />
+                        <q-btn flat round color="primary" :icon="item.actionIcon || iconAction" size="12px" @click.stop="onItemAction(item.id)" />
                         <div class="column self-center">
                             <q-item-label :class="classes">{{ item.name }}</q-item-label>
                             <q-item-label :class="classes" caption lines="2" v-if="item.description">{{ item.description }}</q-item-label>
@@ -47,7 +44,6 @@ export default {
     data () {
         return {
             localItems: [],
-            prioritize: false,
             hide: false
         }
     },
