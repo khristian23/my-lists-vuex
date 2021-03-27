@@ -1,10 +1,10 @@
 <template>
     <q-page class="flex">
         <q-form class="full-width q-pa-md" ref="myForm">
-            <div class="text-h6 q-mb-sm">List Details</div>
+            <div class="text-h6 q-mb-sm">{{mainListType}} Details</div>
             <q-input :disable="disable" outlined v-model="list.name" label="Name" class="q-mb-sm" :rules="[ val => val && val.length > 0 || 'Please enter a name']" />
             <q-input :disable="disable" outlined v-model="list.description" label="Description" class="q-mb-md" />
-            <q-select :disable="disable" outlined v-model="selectedType" :options="$Const.lists.types" class="q-mb-md" @input="onTypeSelection" label="Type">
+            <q-select :disable="disable" outlined v-model="selectedType" :options="typeOptions" class="q-mb-md" @input="onTypeSelection" label="Type">
                 <template v-slot:prepend>
                     <q-icon :name="selectedType.icon" />
                 </template>
@@ -19,7 +19,7 @@
                             <q-item-label v-html="scope.opt.label" />
                         </q-item-section>
                     </q-item>
-                    </template>
+                </template>
             </q-select>
             <q-select :disable="disable" outlined v-model="selectedSubType" :options="selectedType.subTypes" v-if="selectedType.subTypes.length" class="q-mb-md" label="Sub Type">
                 <template v-slot:prepend>
@@ -82,13 +82,7 @@ export default {
         'list.name': {
             immediate: true,
             handler () {
-                if (this.list.name) {
-                    this.setTitle(this.list.name)
-                } else if (this.$route.params.id === 'new') {
-                    this.setTitle('Create List')
-                } else {
-                    this.setTitle('Edit List')
-                }
+                this.setHeaderTitle()
             }
         }
     },
@@ -97,6 +91,16 @@ export default {
     },
     computed: {
         ...mapState('auth', ['user', 'users']),
+
+        typeOptions () {
+            let options = this.$Const.lists.types
+
+            if (this.editMode) {
+                options = options.filter(option => option.type === this.mainListType)
+            }
+
+            return options
+        },
 
         disable () {
             return this.list.isShared
@@ -109,6 +113,10 @@ export default {
         editList () {
             const listId = this.$route.params.id
             return this.$store.getters['lists/getListById'](listId)
+        },
+
+        mainListType () {
+            return this.selectedType.type
         },
 
         shareableUsers () {
@@ -144,6 +152,16 @@ export default {
             }
         },
 
+        setHeaderTitle () {
+            if (this.list.name) {
+                this.setTitle(this.list.name)
+            } else if (this.$route.params.id === 'new') {
+                this.setTitle(`Create ${this.mainListType}`)
+            } else {
+                this.setTitle(`Edit ${this.mainListType}`)
+            }
+        },
+
         onTypeSelection () {
             this.selectedSubType = null
             const subTypes = this.selectedType.subTypes
@@ -153,6 +171,8 @@ export default {
             } else {
                 this.selectedSubType = null
             }
+
+            this.setHeaderTitle()
         },
 
         async onSave () {
@@ -171,6 +191,12 @@ export default {
                 this.list.syncStatus = this.$Const.changeStatus.changed
             } else {
                 this.list.syncStatus = this.$Const.changeStatus.new
+            }
+
+            if (this.list.sharedWith.length) {
+                this.list.isShared = true
+            } else {
+                this.list.isShared = false
             }
 
             try {

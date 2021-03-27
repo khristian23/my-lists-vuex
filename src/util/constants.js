@@ -6,10 +6,12 @@ export default {
         toDoList: 'todo',
         shoppingCart: 'shop',
         whishlist: 'wish',
-        checklist: 'check'
+        checklist: 'check',
+        note: 'note'
     },
     lists: {
         types: [{
+            type: 'List',
             value: 'todo',
             label: 'To Do List',
             icon: 'list',
@@ -21,6 +23,7 @@ export default {
                 label: 'Work'
             }]
         }, {
+            type: 'List',
             value: 'shop',
             label: 'Shopping List',
             icon: 'shopping_cart',
@@ -32,11 +35,13 @@ export default {
                 label: 'House'
             }]
         }, {
+            type: 'List',
             value: 'wish',
             label: 'Whishlist',
             icon: 'star_rate',
             subTypes: []
         }, {
+            type: 'List',
             value: 'check',
             label: 'Checklist',
             icon: 'library_add_check',
@@ -47,6 +52,12 @@ export default {
                 value: 'work',
                 label: 'Work'
             }]
+        }, {
+            type: 'Note',
+            value: 'note',
+            label: 'Note',
+            icon: 'description',
+            subTypes: []
         }]
     },
     itemStatus: {
