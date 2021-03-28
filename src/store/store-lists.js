@@ -89,6 +89,10 @@ export default {
             state.lists.splice(index, 1, list)
         },
 
+        updateNoteContent (state, { note, content }) {
+            note.noteContent = content
+        },
+
         addList (state, list) {
             state.lists.splice(state.lists.length, 0, list)
         },
@@ -143,6 +147,17 @@ export default {
             }
 
             await Storage.saveList(userId, list)
+        },
+
+        async saveNoteContent ({ commit, getters }, { noteId, content }) {
+            const userId = getCurrentUser(this)
+            const note = getters.getListById(noteId)
+
+            commit('setModificationValues', { userId, object: note })
+
+            commit('updateNoteContent', { note, content })
+
+            await Storage.saveNoteContent(userId, note, content)
         },
 
         async saveLists ({ commit }, lists) {

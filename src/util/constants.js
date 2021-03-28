@@ -76,6 +76,7 @@ export default {
         listItems: 'list-items',
         listItem: 'list-item',
         checklist: 'checklist',
+        note: 'note',
         login: 'login',
         register: 'register',
         profile: 'profile',

@@ -1,9 +1,9 @@
 <template>
     <q-page class="flex">
-        <TheList header="Pending" :items="pendingItems" iconAction="done" class="lists"
+        <TheList header="Pending" :items="pendingItems" iconAction="done"
             @itemPress="onItemPress" @itemAction="setItemToDone" @itemDelete="onItemDelete" v-if="hasPendingItems"
             @orderUpdated="onOrderUpdated" />
-        <TheList header="Done" :items="doneItems" iconAction="redo" class="lists self-end"
+        <TheList header="Done" :items="doneItems" iconAction="redo" class="self-end"
             @itemPress="onItemPress" @itemAction="setItemToPending" @itemDelete="onItemDelete" v-if="hasDoneItems"
             scratched="true" />
         <TheFooter>

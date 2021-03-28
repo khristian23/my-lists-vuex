@@ -8,6 +8,7 @@ class List extends ListObject {
         this._type = data.type
         this._subtype = data.subtype
         this._listItems = data.listItems || []
+        this._noteContent = data.noteContent || ''
         this._sharedWith = data.sharedWith || []
     }
 
@@ -41,6 +42,14 @@ class List extends ListObject {
 
     get listItems () {
         return this._listItems
+    }
+
+    get noteContent () {
+        return this._noteContent
+    }
+
+    set noteContent (noteContent) {
+        this._noteContent = noteContent
     }
 
     set sharedWith (sharedWith) {

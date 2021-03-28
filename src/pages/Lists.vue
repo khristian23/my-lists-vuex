@@ -60,7 +60,11 @@ export default {
                 })
                 .map(list => {
                     const renderList = list.toObject()
-                    renderList.numberOfItems = list.listItems.filter(item => item.status === this.$Const.itemStatus.pending).length
+                    if (renderList.type === this.$Const.listTypes.note) {
+                        renderList.numberOfItems = undefined
+                    } else {
+                        renderList.numberOfItems = list.listItems.filter(item => item.status === this.$Const.itemStatus.pending).length
+                    }
                     renderList.actionIcon = list.isShared ? 'share' : 'edit'
                     renderList.canBeDeleted = !list.isShared
                     return renderList
@@ -77,6 +81,8 @@ export default {
 
             if (list.type === this.$Const.listTypes.checklist) {
                 routeName = this.$Const.routes.checklist
+            } else if (list.type === this.$Const.listTypes.note) {
+                routeName = this.$Const.routes.note
             }
 
             this.$router.push({ name: routeName, params: { id: listId } })

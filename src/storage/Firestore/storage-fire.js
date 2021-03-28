@@ -247,6 +247,20 @@ export default {
         } catch (e) {
             throw new Error(e.message)
         }
+    },
+
+    async saveNoteContent (userId, note, content) {
+        const firebaseObjectUpdate = {}
+        firebaseObjectUpdate.changedBy = note.changedBy
+        firebaseObjectUpdate.modifiedAt = note.modifiedAt
+        firebaseObjectUpdate.noteContent = content
+
+        try {
+            const noteRef = firebaseStore.collection('lists').doc(note.id)
+            return noteRef.update(firebaseObjectUpdate)
+        } catch (e) {
+            throw new Error(e.message)
+        }
     }
 
 }

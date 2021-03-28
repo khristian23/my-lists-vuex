@@ -1,15 +1,10 @@
 <template>
   <div class="full-width">
-    <q-banner>
-        <template v-slot:action>
-            <q-skeleton type="QToggle" />
-        </template>
-    </q-banner>
-
     <q-item>
         <q-item-section>
             <div class="row q-mt-sm">
-                <q-skeleton type="QBtn" size="38px" />
+                <q-skeleton type="QBtn" class="q-mr-xs" size="30px" />
+                <q-skeleton type="QBtn" size="30px" />
 
                 <div class="col q-pl-sm">
                     <q-item-label>
@@ -26,7 +21,8 @@
     <q-item>
         <q-item-section>
             <div class="row q-mt-sm">
-                <q-skeleton type="QBtn" size="38px" />
+                <q-skeleton type="QBtn" class="q-mr-xs" size="30px" />
+                <q-skeleton type="QBtn" size="30px" />
 
                 <div class="col q-pl-sm">
                     <q-item-label>
@@ -43,7 +39,8 @@
     <q-item>
         <q-item-section>
             <div class="row q-mt-sm">
-                <q-skeleton type="QBtn" size="38px" />
+                <q-skeleton type="QBtn" class="q-mr-xs" size="30px" />
+                <q-skeleton type="QBtn" size="30px" />
 
                 <div class="col q-pl-sm">
                     <q-item-label>
