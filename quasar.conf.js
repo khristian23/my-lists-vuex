@@ -102,7 +102,8 @@ module.exports = function (/* ctx */) {
             // Quasar plugins
             plugins: [
                 'Notify',
-                'Loading'
+                'Loading',
+                'LocalStorage'
             ]
         },
 
@@ -120,9 +121,9 @@ module.exports = function (/* ctx */) {
             workboxPluginMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
             workboxOptions: {}, // only for GenerateSW
             manifest: {
-                name: 'My Lists',
+                name: 'Organize my Lists',
                 short_name: 'My Lists',
-                description: 'A ToDo list',
+                description: 'A ToDo list organizer',
                 display: 'standalone',
                 orientation: 'portrait',
                 background_color: '#ffffff',

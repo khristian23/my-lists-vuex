@@ -14,6 +14,15 @@
                 </q-item-label>
                 <MenuLink v-for="link in menuLinks" :key="link.title" v-bind="link" />
             </q-list>
+
+            <q-banner bordered inline-actions rounded class="bg-primary text-white q-ma-sm" v-if="showAppInstallBanner">
+                <b>Install?</b>
+                <template v-slot:action>
+                    <q-btn flat color="white" class="q-px-sm" label="Yes" dense @click="installApp" />
+                    <q-btn flat color="white" class="q-px-sm" label="Later" dense @click="showAppInstallBanner = false" />
+                    <q-btn flat color="white" class="q-px-sm" label="Never" dense @click="neverShowAppInstallBanner" />
+                </template>
+            </q-banner>
         </q-drawer>
 
         <q-page-container>
@@ -36,6 +45,8 @@ const linksData = [
     }
 ]
 
+let deferredPrompt
+
 export default {
     name: 'MainLayout',
     components: {
@@ -44,7 +55,15 @@ export default {
     },
     data () {
         return {
-            leftDrawerOpen: false
+            leftDrawerOpen: false,
+            showAppInstallBanner: false
+        }
+    },
+    mounted () {
+        const neverShowAppInstallBanner = this.$q.localStorage.getItem('neverShowAppInstallBanner')
+
+        if (!neverShowAppInstallBanner) {
+            this.hookupBeforePWAInstallEvent()
         }
     },
     computed: {
@@ -66,6 +85,34 @@ export default {
         }
     },
     methods: {
+        hookupBeforePWAInstallEvent () {
+            window.addEventListener('beforeinstallprompt', e => {
+                // Prevent the mini-infobar from appearing on mobile
+                e.preventDefault()
+                // Stash the event so it can be triggered later
+                deferredPrompt = e
+                // Update UI notify the user they can install the PWA
+                this.showAppInstallBanner = true
+            })
+        },
+        async installApp () {
+            this.showAppInstallBanner = false
+            // Show the install prompt
+            deferredPrompt.prompt()
+            // Wait for the user to respond to the prompt
+            const choiceResult = await deferredPrompt.userChoice
+            if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the install prompt')
+                this.neverShowAppInstallBanner()
+            } else {
+                console.log('User dismissed the install prompt')
+            }
+        },
+        neverShowAppInstallBanner () {
+            this.showAppInstallBanner = false
+
+            this.$q.localStorage.set('neverShowAppInstallBanner', true)
+        },
         showError (message) {
             this.$q.notify({
                 message: message,

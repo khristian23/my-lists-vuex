@@ -1,7 +1,6 @@
 <template>
     <q-footer bordered class="primary text-white">
         <q-toolbar>
-            <div v-if="isSynchronizing">Synchronizing...</div>
             <q-space />
             <slot></slot>
         </q-toolbar>
@@ -9,13 +8,8 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
-
 export default {
-    name: 'the-footer',
-    computed: {
-        ...mapState('app', ['isSynchronizing'])
-    }
+    name: 'the-footer'
 }
 </script>
 
