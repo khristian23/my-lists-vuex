@@ -118,12 +118,12 @@ module.exports = function (/* ctx */) {
 
         // https://quasar.dev/quasar-cli/developing-pwa/configuring-pwa
         pwa: {
-            workboxPluginMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
+            workboxPluginMode: 'InjectManifest', // 'GenerateSW' or 'InjectManifest'
             workboxOptions: {}, // only for GenerateSW
             manifest: {
-                name: 'Organize my Lists',
+                name: 'Organize your Lists',
                 short_name: 'My Lists',
-                description: 'A ToDo list organizer',
+                description: 'A List organizer',
                 display: 'standalone',
                 orientation: 'portrait',
                 background_color: '#ffffff',
