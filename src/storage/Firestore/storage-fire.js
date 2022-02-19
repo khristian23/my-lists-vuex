@@ -84,24 +84,13 @@ export default {
         const ownerArgs = ['owner', '==', userId]
         const sharedArgs = ['sharedWith', 'array-contains', userId]
 
-        async function loadListsFromFirebaseDocuments (listDocs, options) {
+        async function loadListsFromFirebaseDocuments (listDocs) {
             for (const firebaseList of listDocs) {
                 const firebaseListData = firebaseList.data()
                 const list = new List(firebaseListData)
                 list.id = firebaseList.id
                 list.isShared = list.owner !== userId
                 list.priority = firebaseListData.userPriorities ? firebaseListData.userPriorities[userId] : 0
-
-                const items = await listsCollection.doc(list.id).collection('items').get()
-                for (const item of items.docs) {
-                    const firebaseItemData = item.data()
-                    const listItem = new ListItem(firebaseItemData)
-                    listItem.id = item.id
-                    listItem.listId = list.id
-                    listItem.isShared = item.owner !== userId
-                    listItem.priority = firebaseItemData.userPriorities ? firebaseItemData.userPriorities[userId] : 0
-                    list.addListItem(listItem)
-                }
                 results.push(list)
             }
         }
@@ -110,10 +99,28 @@ export default {
         const listsRef = await listsCollection.where(...ownerArgs).get()
         const sharedListsRef = await listsCollection.where(...sharedArgs).get()
 
-        await loadListsFromFirebaseDocuments(listsRef.docs, ownerArgs)
-        await loadListsFromFirebaseDocuments(sharedListsRef.docs, sharedArgs)
+        await loadListsFromFirebaseDocuments(listsRef.docs)
+        await loadListsFromFirebaseDocuments(sharedListsRef.docs)
 
         return results
+    },
+
+    async getListItems (userId, listId) {
+        const listItems = []
+        const listsCollection = firebaseStore.collection('lists')
+        const items = await listsCollection.doc(listId).collection('items').get()
+
+        for (const item of items.docs) {
+            const firebaseItemData = item.data()
+            const listItem = new ListItem(firebaseItemData)
+            listItem.id = item.id
+            listItem.listId = listId
+            listItem.isShared = item.owner !== userId
+            listItem.priority = firebaseItemData.userPriorities ? firebaseItemData.userPriorities[userId] : 0
+            listItems.push(listItem)
+        }
+
+        return listItems
     },
 
     async saveList (userId, list) {

@@ -128,8 +128,11 @@ export default {
             commit('loadingLists', false)
         },
 
-        getListItems ({ commit, getters }, listId) {
+        async getListItems ({ commit, getters }, listId) {
+            const userId = getCurrentUser(this)
+
             const list = getters.getListById(listId)
+            list.listItems = await Storage.getListItems(userId, listId)
             if (list) {
                 commit('setItems', list.listItems)
             }
