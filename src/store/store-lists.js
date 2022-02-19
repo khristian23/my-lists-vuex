@@ -132,9 +132,9 @@ export default {
             const userId = getCurrentUser(this)
 
             const list = getters.getListById(listId)
-            list.listItems = await Storage.getListItems(userId, listId)
+            const listItems = await Storage.getListItems(userId, listId)
             if (list) {
-                commit('setItems', list.listItems)
+                commit('setItems', listItems)
             }
         },
 

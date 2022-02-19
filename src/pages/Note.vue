@@ -1,6 +1,9 @@
 <template>
     <q-page class="flex">
-        <q-editor v-model="content" class="full-width editor-height" />
+        <q-editor
+            v-model="content"
+            class="full-width editor-height"
+            ref="editor"/>
         <TheFooter>
             <q-btn unelevated icon="save" @click="onSave" label="Save" />
         </TheFooter>
@@ -17,7 +20,9 @@ export default {
     },
     data () {
         return {
-            content: ''
+            content: '',
+            saveTimeout: 0,
+            editor: null
         }
     },
     watch: {
@@ -33,6 +38,12 @@ export default {
             const noteId = this.$route.params.id
             return this.$store.getters['lists/getListById'](noteId)
         }
+    },
+    created () {
+        this.$nextTick(() => {
+            const contenteditable = this.$refs.editor.$el.querySelector('[contenteditable]')
+            contenteditable.addEventListener('input', this.onContentChanged)
+        })
     },
     methods: {
         ...mapMutations('app', ['setTitle']),
@@ -55,6 +66,13 @@ export default {
             } catch (e) {
                 this.$emit('showError', e.message)
             }
+        },
+
+        async onContentChanged (value) {
+            clearTimeout(this.saveTimeout)
+            this.saveTimeout = setTimeout(() => {
+                this.onSave()
+            }, 1000)
         }
     }
 }
